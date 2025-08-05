@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Button } from "./button/button";
+import { Today } from "./today/today";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Button],
+  imports: [ Today],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
