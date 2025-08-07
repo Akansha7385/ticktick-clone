@@ -7,12 +7,13 @@ import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 import { NgFor } from '@angular/common';
 import { CheckboxModule } from 'primeng/checkbox';
+import { Sidemenu } from '../sidemenu/sidemenu';
 
 
 @Component({
   selector: 'app-today',
   standalone:true,
-  imports: [InputTextModule, FormsModule, Sidebar, AutoCompleteModule, ButtonModule, AccordionModule, NgFor, CheckboxModule],
+  imports: [InputTextModule, FormsModule, Sidebar, AutoCompleteModule, ButtonModule, AccordionModule,  CheckboxModule, Sidemenu],
   templateUrl: './today.html',
   styleUrl: './today.css'
 })

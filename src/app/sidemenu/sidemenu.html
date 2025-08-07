@@ -1,0 +1,75 @@
+<!-- <img src="your-image-url.jpg" class="rounded-full h-10 w-10" alt="Profile" /> -->
+<div class="h-screen w-16 bg-white flex flex-col items-center py-4 space-y-6 shadow-md">
+  <div>
+    <button 
+      pButton 
+      icon="pi pi-check"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-check',
+        '!text-gray-500': selectedIcon !== 'pi-check'
+      }"
+      (click)="selectedIcon = 'pi-check'"
+    ></button>
+
+    <button 
+      pButton 
+      icon="pi pi-calendar"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-calendar',
+        '!text-gray-500': selectedIcon !== 'pi-calendar'
+      }"
+      (click)="selectedIcon = 'pi-calendar'"
+    ></button>
+
+    <button 
+      pButton 
+      icon="pi pi-search"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-search',
+        '!text-gray-500': selectedIcon !== 'pi-search'
+      }"
+      (click)="selectedIcon = 'pi-search'; openSearchDialog()">
+    </button>
+    <app-search-page [(visible)]="searchVisible"/>
+
+  </div>
+
+  <div class="mt-50">
+    <button 
+      pButton 
+      icon="pi pi-refresh"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-refresh',
+        '!text-gray-500': selectedIcon !== 'pi-refresh'
+      }"
+      (click)="selectedIcon = 'pi-refresh'"
+    ></button>
+
+    <button 
+      pButton 
+      icon="pi pi-bell"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-bell',
+        '!text-gray-500': selectedIcon !== 'pi-bell'
+      }"
+      (click)="selectedIcon = 'pi-bell'"
+    ></button>
+
+    <button 
+      pButton 
+      icon="pi pi-question-circle"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-question-circle',
+        '!text-gray-500': selectedIcon !== 'pi-question-circle'
+      }"
+      (click)="selectedIcon = 'pi-question-circle'"
+    ></button>
+  </div>
+</div>
+
