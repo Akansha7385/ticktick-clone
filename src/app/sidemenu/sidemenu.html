@@ -57,19 +57,28 @@
         '!text-blue-500': selectedIcon === 'pi-bell',
         '!text-gray-500': selectedIcon !== 'pi-bell'
       }"
-      (click)="selectedIcon = 'pi-bell'"
+      (click)="selectedIcon = 'pi-bell'; openNotificationDialog()"
     ></button>
+    <app-notification-page [(visible)]="notificationVisible" />
 
-    <button 
-      pButton 
-      icon="pi pi-question-circle"
-      class="p-button-rounded p-button-text"
-      [ngClass]="{
-        '!text-blue-500': selectedIcon === 'pi-question-circle',
-        '!text-gray-500': selectedIcon !== 'pi-question-circle'
-      }"
-      (click)="selectedIcon = 'pi-question-circle'"
-    ></button>
+<button 
+  pButton 
+  icon="pi pi-question-circle"
+  class="p-button-rounded p-button-text"
+  [ngClass]="{
+    '!text-blue-500': selectedIcon === 'pi-question-circle',
+    '!text-gray-500': selectedIcon !== 'pi-question-circle'
+  }"
+  (click)="selectedIcon = 'pi-question-circle'; openMoreDialog()">
+</button>
+
+<app-more 
+  [(visible)]="moreVisible"
+  (shortcutClick)="openShortcutDialog()">
+</app-more>
+
+<app-shortcut [(visible)]="shortcutVisible"></app-shortcut>
+
   </div>
 </div>
 

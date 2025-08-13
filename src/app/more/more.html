@@ -1,0 +1,15 @@
+<p-dialog 
+  header="More" 
+  [(visible)]="visible" 
+  [modal]="true" 
+  position="left"
+  [dismissableMask]="true" 
+  [style]="{ width: '20rem' }"
+  contentStyleClass="!bg-white !text-black">
+
+  <p-tieredMenu 
+    [model]="items" 
+    class="w-full !bg-white !text-black border-0 shadow-none">
+  </p-tieredMenu>
+
+</p-dialog>
