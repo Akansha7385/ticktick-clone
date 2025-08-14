@@ -10,12 +10,16 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './more.html'
 })
 export class MoreComponent {
-  @Input() visible: boolean = false; // ✅ Needed for [(visible)] binding
-  @Output() visibleChange = new EventEmitter<boolean>(); // ✅ Needed for two-way binding
+  @Input() visible: boolean = false; //  Needed for [(visible)] binding
+  @Output() visibleChange = new EventEmitter<boolean>(); //  Needed for two-way binding
   @Output() shortcutClick = new EventEmitter<void>();
+  @Output() homeClick = new EventEmitter<void>();
 
   items: MenuItem[] = [
-    { label: 'Home', icon: 'pi pi-home', command: () => this.closeDialog() },
+    { label: 'Home', icon: 'pi pi-home', command: () =>  { 
+        this.homeClick.emit();  
+        this.closeDialog();         
+      }  },
     { 
       label: 'Shortcuts', 
       icon: 'pi pi-key', 

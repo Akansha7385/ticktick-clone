@@ -13,7 +13,7 @@ import { NgFor } from '@angular/common';
 export class Shortcut {
   @Input() visible: boolean = false;
   @Output() visibleChange = new EventEmitter<boolean>();
-
+ 
   generalShortcuts = [
     { name: 'Save', key: 'Ctrl+S' },
     { name: 'Sync', key: '.' },

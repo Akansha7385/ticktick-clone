@@ -4,8 +4,9 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SearchPage } from "../search-page/search-page";
 import { NotificationPage } from '../notification-page/notification-page';
-import { MoreComponent } from '../more/more'; // ✅ Import your MoreComponent
-import { Shortcut } from '../shortcut/shortcut'; // ✅ Import Shortcut
+import { MoreComponent } from '../more/more';
+import { Shortcut } from '../shortcut/shortcut';
+import { Home } from '../home/home'; // ✅ Import Home component
 
 @Component({
   selector: 'app-sidemenu',
@@ -16,18 +17,20 @@ import { Shortcut } from '../shortcut/shortcut'; // ✅ Import Shortcut
     DialogModule,
     SearchPage,
     NotificationPage,
-    MoreComponent,   // ✅ Add here
-    Shortcut         // ✅ Add here
+    MoreComponent,
+    Shortcut,
+    Home // ✅ Add Home to imports
   ],
   templateUrl: './sidemenu.html',
   styleUrl: './sidemenu.css'
 })
 export class Sidemenu {
-  selectedIcon: string = 'pi-check'; 
-  searchVisible: boolean = false;
-  notificationVisible: boolean = false;
-  moreVisible: boolean = false;
-  shortcutVisible: boolean = false;
+  selectedIcon: string = 'pi-check';
+  searchVisible = false;
+  notificationVisible = false;
+  moreVisible = false;
+  shortcutVisible = false;
+  homeVisible = false; // ✅ Added
 
   openSearchDialog() {
     this.searchVisible = true;
@@ -43,5 +46,9 @@ export class Sidemenu {
 
   openShortcutDialog() {
     this.shortcutVisible = true;
+  }
+
+  openHomePage() { // ✅ Added
+    this.homeVisible = true;
   }
 }

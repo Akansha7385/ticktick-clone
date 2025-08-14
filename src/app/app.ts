@@ -1,12 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Today } from "./today/today";
-import { Home } from "./home/home";
-import { Shortcut } from "./shortcut/shortcut";
+import {TaskMenu} from './task-menu/task-menu';
 
 @Component({
   selector: 'app-root',
-  imports: [Today, Home, Shortcut],
+  imports: [Today, TaskMenu],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

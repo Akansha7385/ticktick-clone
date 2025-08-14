@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 
 @Component({
   selector: 'app-home',
@@ -7,5 +7,6 @@ import { Component } from '@angular/core';
   styleUrl: './home.css'
 })
 export class Home {
-
+   @Input() visible: boolean = false;
+  @Output() visibleChange = new EventEmitter<boolean>();
 }

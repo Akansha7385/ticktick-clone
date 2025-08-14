@@ -1,40 +1,36 @@
 <div class="flex">
   <app-sidebar /> 
-<h1 class="!text-black text-3xl font-semibold">Inbox</h1>
+  <h1 class="!text-black text-3xl font-semibold">Inbox</h1>
 </div>
-
 
 <div class="flex">
-
   <app-sidemenu/>
   <div class="flex flex-col gap-2 p-4 !bg-white w-full">
-  <input
-    type="text"
-    placeholder="+ Add task to Inbox"
-    pInputText
-    [(ngModel)]="taskText"
-    class="!bg-white !text-black w-full"
-  />
-  
- <p-accordion [multiple]="true">
-  @for (category of categories; track category.key) {
-    <p-accordion-panel [value]="category.key" >
-      <p-accordion-header class="!bg-white !text-black">{{ category.name }}</p-accordion-header>
-      <p-accordion-content>
-        <div class="flex items-center !bg-white !text-black">
-          <p-checkbox 
-            [inputId]="category.key"
-            name="group"
-            [value]="category"
-            [(ngModel)]="selectedCategories"
-          ></p-checkbox>
-          <label [for]="category.key" class="ml-2">{{ category.name }}</label>
-        </div>
-      </p-accordion-content>
-    </p-accordion-panel>
-  }
-</p-accordion>
+    <input
+      type="text"
+      placeholder="+ Add task to Inbox"
+      pInputText
+      [(ngModel)]="taskText"
+      (keyup.enter)="addTask()"
+      class="!bg-white !text-black w-full"
+    />
 
+    <!-- Message -->
+    @if (message) {
+      <div class="text-green-600 font-medium">
+        {{ message }}
+      </div>
+    }
 
-</div>
+    <!-- Task list -->
+    <ul class="mt-4 !text-black">
+      <li *ngFor="let task of tasks" class="flex items-center gap-2 p-2 border-b border-gray-200">
+        <p-checkbox 
+          (onChange)="completeTask(task)"
+          [binary]="true"
+        ></p-checkbox>
+        <span>{{ task.text }}</span>
+      </li>
+    </ul>
+  </div>
 </div>

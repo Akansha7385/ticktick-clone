@@ -3,46 +3,49 @@ import { FormsModule } from '@angular/forms';
 import { Sidebar } from '../sidebar/sidebar';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
-import { NgFor } from '@angular/common';
 import { CheckboxModule } from 'primeng/checkbox';
 import { Sidemenu } from '../sidemenu/sidemenu';
+import { NgFor } from '@angular/common';
 
+interface Task {
+  text: string;
+  completed: boolean;
+}
 
 @Component({
   selector: 'app-today',
-  standalone:true,
-  imports: [InputTextModule, FormsModule, Sidebar, AutoCompleteModule, ButtonModule, AccordionModule,  CheckboxModule, Sidemenu],
+  standalone: true,
+  imports: [
+    InputTextModule,
+    FormsModule,
+    Sidebar,
+    AutoCompleteModule,
+    AccordionModule,
+    CheckboxModule,
+    Sidemenu,
+    NgFor
+  ],
   templateUrl: './today.html',
   styleUrl: './today.css'
 })
 export class Today {
-
- value:string = '';
   taskText: string = '';
-  taskCategory: string = '';
-  categoryOptions: string[] = ['Pinned', 'Completed'];
-  filteredCategories: string[] = [];
-
-  filterCategories(event: any) {
-    const query = event.query.toLowerCase();
-    this.filteredCategories = this.categoryOptions.filter(option =>
-      option.toLowerCase().includes(query)
-    );
-  }
+  tasks: Task[] = [];
+  message: string = ''; // for "Task Completed" message
 
   addTask() {
-    console.log('Task:', this.taskText, 'Category:', this.taskCategory);
-    // Add your logic to display or store the task
+    if (this.taskText.trim()) {
+      this.tasks.push({ text: this.taskText.trim(), completed: false });
+      this.taskText = '';
+    }
   }
 
-   categories = [
-    { key: 'pinned', name: ' Pinned' },
-    { key: 'unpinned', name: ' Unpinned' },
-    { key: 'completed', name: ' Completed' }
-  ];
+  completeTask(task: Task) {
+    this.message = `Task Completed: ${task.text}`;
+    this.tasks = this.tasks.filter(t => t !== task);
 
-  selectedCategories: any[] = [];
-  
+    // Hide message after 2 seconds
+    setTimeout(() => this.message = '', 2000);
+  }
 }
