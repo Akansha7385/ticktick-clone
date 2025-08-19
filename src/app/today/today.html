@@ -15,22 +15,38 @@
       class="!bg-white !text-black w-full"
     />
 
-    <!-- Message -->
     @if (message) {
       <div class="text-green-600 font-medium">
         {{ message }}
       </div>
     }
 
-    <!-- Task list -->
+    <app-task-menu 
+      #menu 
+      (deleteTask)="deleteSelectedTask()"
+      (setPriority)="setPriority($event)">
+    </app-task-menu>
+
     <ul class="mt-4 !text-black">
-      <li *ngFor="let task of tasks" class="flex items-center gap-2 p-2 border-b border-gray-200">
+      <li *ngFor="let task of tasks"
+          class="flex items-center gap-2 p-2 border-b border-gray-200"
+          (contextmenu)="onRightClick($event, menu['cm'], task)">
+          
         <p-checkbox 
           (onChange)="completeTask(task)"
-          [binary]="true"
-        ></p-checkbox>
-        <span>{{ task.text }}</span>
+          [binary]="true">
+        </p-checkbox>
+
+        <span
+  [class.text-red-500]="task.priority === 'high'"
+  [class.text-yellow-500]="task.priority === 'medium'"
+  [class.text-blue-500]="task.priority === 'low'"
+  [class.text-black]="task.priority === 'none'">
+  {{ task.text }}
+</span>
+
       </li>
     </ul>
+
   </div>
 </div>

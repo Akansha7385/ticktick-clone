@@ -1,17 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MenuItem } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { TieredMenu } from 'primeng/tieredmenu';
+import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 
 @Component({
   selector: 'app-task-menu',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TieredMenu],
+  imports: [CommonModule, ContextMenuModule],
   templateUrl: './task-menu.html',
-  styleUrl: './task-menu.css'
+  styleUrls: ['./task-menu.css']
 })
 export class TaskMenu {
+  @ViewChild('cm') cm!: ContextMenu;
+
+  @Output() deleteTask = new EventEmitter<void>();
+  @Output() setPriority = new EventEmitter<'high' | 'medium' | 'low'| 'none'>();
+  @Output() addSubtask = new EventEmitter<void>();
+
   items: MenuItem[] = [];
 
   ngOnInit() {
@@ -27,16 +32,17 @@ export class TaskMenu {
       {
         label: 'Priority',
         items: [
-          { label: 'High', icon: 'pi pi-flag-fill text-red-500' },
-          { label: 'Medium', icon: 'pi pi-flag-fill text-yellow-500' },
-          { label: 'Low', icon: 'pi pi-flag-fill text-blue-500' }
+          { label: 'High', icon: 'pi pi-flag-fill text-red-500', command: () => this.setPriority.emit('high') },
+          { label: 'Medium', icon: 'pi pi-flag-fill text-yellow-500', command: () => this.setPriority.emit('medium') },
+          { label: 'Low', icon: 'pi pi-flag-fill text-blue-500', command: () => this.setPriority.emit('low') },
+          { label: 'None', icon: 'pi pi-flag-fill text-black', command: () => this.setPriority.emit('none') }
         ]
       },
       { separator: true },
-      { label: 'Add Subtask', icon: 'pi pi-plus' },
+      { label: 'Add Subtask', icon: 'pi pi-plus', command: () => this.addSubtask.emit() },
       { label: 'Link Parent Task', icon: 'pi pi-link' },
       { label: 'Pin', icon: 'pi pi-thumbtack' },
-      { label: "Won't Do", icon: 'pi pi-times' },
+      { label: "Won't Do", icon: 'pi pi-times', command: () => this.deleteTask.emit() },
       {
         label: 'Move to',
         items: [
@@ -48,7 +54,11 @@ export class TaskMenu {
       { label: 'Duplicate', icon: 'pi pi-copy' },
       { label: 'Copy Link', icon: 'pi pi-link' },
       { label: 'Convert to Note', icon: 'pi pi-file' },
-      { label: 'Delete', icon: 'pi pi-trash text-red-500' }
+      { label: 'Delete', icon: 'pi pi-trash text-red-500', command: () => this.deleteTask.emit() }
     ];
+  }
+
+  open(event: MouseEvent) {
+    this.cm.show(event);
   }
 }

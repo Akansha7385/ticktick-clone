@@ -1,5 +1,1 @@
-<div class="flex items-center justify-center h-screen">
-  <p-tieredMenu [model]="items" popup #menu styleClass="rounded-lg shadow-lg"></p-tieredMenu>
-  <button pButton type="button" label="Open Task Menu" icon="pi pi-bars"
-    (click)="menu.toggle($event)" class="p-button-text"></button>
-</div>
+<p-contextMenu #cm [model]="items" styleClass="rounded-lg shadow-lg"></p-contextMenu>
