@@ -1,24 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-// PrimeNG
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-
+import { AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
 
 @Component({
   selector: 'app-tags',
-  imports: [CommonModule, DialogModule, ButtonModule, FormsModule, AutoCompleteModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, AutoCompleteModule],
   templateUrl: './tags.html',
-  styleUrl: './tags.css'
+  styleUrls: ['./tags.css']
 })
 export class Tags {
-  display: boolean = false;
+ @Input() display: boolean = false; 
+  @Output() tagsSelected = new EventEmitter<string[]>(); 
 
   selectedTags: string[] = [];
-  allTags: string[] = ["work", "personal", "urgent", "dwq", "study"];
+  allTags: string[] = ["work", "personal", "urgent", "study"];
   filteredTags: string[] = [];
 
   showDialog() {
@@ -26,17 +25,31 @@ export class Tags {
   }
 
   filterTags(event: any) {
-    let query = event.query.toLowerCase();
+    const query = event.query.toLowerCase();
     this.filteredTags = this.allTags.filter(tag => tag.toLowerCase().includes(query));
+
+    // agar tag exist nahi karta to suggest naya add karne ka option
+    if (!this.allTags.some(tag => tag.toLowerCase() === query) && query.trim()) {
+      this.filteredTags = [...this.filteredTags, `+ Add "${event.query}"`];
+    }
+  }
+
+  // jab user naya tag type kare to list me add karna
+  onTagSelect(event: AutoCompleteSelectEvent) {
+    const tag = event.value as string;
+
+    if (tag.startsWith('+ Add "')) {
+      const newTag = tag.replace('+ Add "', '').replace('"', '');
+     this.selectedTags = [...this.selectedTags.filter(t => !t.startsWith('+ Add "')), newTag];
+    }
   }
 
   saveTags() {
-    console.log("Selected Tags:", this.selectedTags);
+   this.tagsSelected.emit(this.selectedTags); 
     this.display = false;
   }
 
   cancel() {
     this.display = false;
   }
-
 }

@@ -1,16 +1,13 @@
-<p-button label="Add Tags" icon="pi pi-tags" (click)="showDialog()"></p-button>
-
-<p-dialog header="Add Tags" [(visible)]="display" [modal]="true" [closable]="false" [style]="{width: '400px'}">
-  <div class="p-fluid">
-    <label for="tags">Type in a tag</label>
-    <p-autoComplete 
-        [(ngModel)]="selectedTags" 
-        [suggestions]="filteredTags" 
-        (completeMethod)="filterTags($event)" 
-        [multiple]="true" 
-        placeholder="Type in a tag">
-    </p-autoComplete>
-  </div>
+<p-dialog header="Add Tags" [(visible)]="display" [modal]="true" [closable]="true">
+  <p-autoComplete 
+    [(ngModel)]="selectedTags"
+    [suggestions]="filteredTags"
+    (completeMethod)="filterTags($event)"
+    (onSelect)="onTagSelect($event)"
+    [multiple]="true"
+    [forceSelection]="false"
+    placeholder="Type in a tag">
+  </p-autoComplete>
 
   <div class="flex justify-end gap-2 mt-3">
     <p-button label="Cancel" class="p-button-text" (click)="cancel()"></p-button>

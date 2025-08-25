@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';   // <-- Router import
 import { DialogModule } from 'primeng/dialog';
 import { TieredMenuModule } from 'primeng/tieredmenu';
 import { MenuItem } from 'primeng/api';
@@ -10,21 +11,25 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './more.html'
 })
 export class MoreComponent {
-  @Input() visible: boolean = false; //  Needed for [(visible)] binding
-  @Output() visibleChange = new EventEmitter<boolean>(); //  Needed for two-way binding
-  @Output() shortcutClick = new EventEmitter<void>();
-  @Output() homeClick = new EventEmitter<void>();
+  constructor(private router: Router) {}   // <-- Router inject
+
+  @Input() visible: boolean = false;
+  @Output() visibleChange = new EventEmitter<boolean>();
 
   items: MenuItem[] = [
-    { label: 'Home', icon: 'pi pi-home', command: () =>  { 
-        this.homeClick.emit();  
+    { 
+      label: 'Home', 
+      icon: 'pi pi-home', 
+      command: () => { 
+        this.router.navigate(['/home']);   // ✅ Ab chalega
         this.closeDialog();         
-      }  },
+      }  
+    },
     { 
       label: 'Shortcuts', 
       icon: 'pi pi-key', 
       command: () => { 
-        this.shortcutClick.emit();  
+        this.router.navigate(['/shortcut']); 
         this.closeDialog();         
       } 
     },
@@ -35,6 +40,6 @@ export class MoreComponent {
 
   closeDialog() {
     this.visible = false;
-    this.visibleChange.emit(false); // ✅ Tell parent to update state
+    this.visibleChange.emit(false);
   }
 }

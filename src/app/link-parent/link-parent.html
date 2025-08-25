@@ -1,0 +1,21 @@
+<button pButton type="button" label="Open Dialog" (click)="openDialog()"></button>
+
+<p-dialog header="Select Task"
+          [(visible)]="visible"
+          [modal]="true"
+          [style]="{width: '400px'}">
+
+  <!-- Search bar -->
+  <div class="mb-3">
+    <input type="text" pInputText placeholder="Search"
+           [(ngModel)]="searchText" style="width:100%">
+  </div>
+
+  <!-- List of items -->
+  <p-listbox [options]="filteredItems"
+             [(ngModel)]="selectedItem"
+             optionLabel="label"
+             style="width:100%">
+  </p-listbox>
+
+</p-dialog>
