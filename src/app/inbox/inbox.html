@@ -4,7 +4,7 @@
   <app-sidebar class="pt-6"/>
   <div class="flex-1 flex flex-col gap-4 p-6 bg-white">
     <!-- Heading -->
-    <h1 class="text-black text-2xl font-semibold">Today</h1>
+    <h1 class="text-black text-2xl font-semibold">Inbox</h1>
 
     <!-- Input Box -->
     <input
@@ -38,7 +38,7 @@
 
     <app-tags [display]="showTags" (tagsSelected)="updateTaskTags($event)"></app-tags>
 
-    <!-- 🔹 Case 1: No pinned → just show tasks (no heading) -->
+   <!-- 🔹 Case 1: No pinned → just show tasks (no heading) -->
 <ul *ngIf="!hasPinned" class="mt-2 text-black">
   <ng-container
     *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: activeTasks, parent: null }"

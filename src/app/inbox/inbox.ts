@@ -10,7 +10,7 @@ import { CommonModule, NgFor } from '@angular/common';
 import { TaskMenu } from '../task-menu/task-menu';
 import { Tags } from "../tags/tags";
 
-export interface Task { 
+export interface Task {
   id: string;
   text: string;
   completed: boolean;
@@ -23,12 +23,9 @@ export interface Task {
    list?: 'inbox' | 'welcome' | 'work';
    pinned?: boolean;
 }
-
 @Component({
-  selector: 'app-today',
-  standalone: true,
-  imports: [
-    InputTextModule,
+  selector: 'app-inbox',
+  imports: [InputTextModule,
     FormsModule,
     Sidebar,
     AutoCompleteModule,
@@ -38,13 +35,12 @@ export interface Task {
     NgFor,
     TaskMenu,
     CommonModule,
-    Tags
-],
-  templateUrl: './today.html',
-  styleUrls: ['./today.css']
+    Tags],
+  templateUrl: './inbox.html',
+  styleUrl: './inbox.css'
 })
-export class Today {
-  taskText: string = '';
+export class Inbox {
+ taskText: string = '';
   tasks: Task[] = [];
   message: string = '';
   selectedTask!: Task;
@@ -223,6 +219,5 @@ pinTask() {
     this.saveTasks();
   }
 }
-
 
 }

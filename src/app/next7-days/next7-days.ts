@@ -8,25 +8,23 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { Sidemenu } from '../sidemenu/sidemenu';
 import { CommonModule, NgFor } from '@angular/common';
 import { TaskMenu } from '../task-menu/task-menu';
-import { Tags } from "../tags/tags";
+import { Tags } from '../tags/tags';
 
-export interface Task { 
+export interface Task {
   id: string;
   text: string;
   completed: boolean;
   priority?: 'high' | 'medium' | 'low' | 'none';
   subtasks?: Task[];
   showSubtaskInput?: boolean;
-  type?: 'task' | 'note';  
-   tags?: string[]; 
-   dueDate?: string; 
-   list?: 'inbox' | 'welcome' | 'work';
-   pinned?: boolean;
+  type?: 'task' | 'note';
+  tags?: string[];
+  dueDate?: string;
+  list?: 'inbox' | 'welcome' | 'work';
+  pinned?: boolean;
 }
-
 @Component({
-  selector: 'app-today',
-  standalone: true,
+  selector: 'app-next7-days',
   imports: [
     InputTextModule,
     FormsModule,
@@ -38,12 +36,12 @@ export interface Task {
     NgFor,
     TaskMenu,
     CommonModule,
-    Tags
-],
-  templateUrl: './today.html',
-  styleUrls: ['./today.css']
+    Tags,
+  ],
+  templateUrl: './next7-days.html',
+  styleUrl: './next7-days.css',
 })
-export class Today {
+export class Next7Days {
   taskText: string = '';
   tasks: Task[] = [];
   message: string = '';
@@ -78,9 +76,9 @@ export class Today {
   completeTask(task: Task, parentTask?: Task) {
     this.message = `Task Completed: ${task.text}`;
     if (parentTask) {
-      parentTask.subtasks = parentTask.subtasks?.filter(sub => sub !== task);
+      parentTask.subtasks = parentTask.subtasks?.filter((sub) => sub !== task);
     } else {
-      this.tasks = this.tasks.filter(t => t !== task);
+      this.tasks = this.tasks.filter((t) => t !== task);
     }
     this.saveTasks();
     setTimeout(() => (this.message = ''), 2000);
@@ -88,7 +86,7 @@ export class Today {
 
   onRightClick(event: MouseEvent, cm: any, task: Task, menu: any) {
     this.selectedTask = task;
-    menu.buildMenu(task.type ?? 'task');   // ✅ rebuild menu dynamically
+    menu.buildMenu(task.type ?? 'task'); // ✅ rebuild menu dynamically
     cm.show(event);
     event.preventDefault();
   }
@@ -130,7 +128,7 @@ export class Today {
       completed: false,
       priority: 'none',
       subtasks: [],
-      type: 'task'
+      type: 'task',
     });
     task.showSubtaskInput = false;
     this.saveTasks();
@@ -172,11 +170,11 @@ export class Today {
   }
 
   get activeTasks(): Task[] {
-    return this.tasks.filter(t => t.type !== 'note');
+    return this.tasks.filter((t) => t.type !== 'note');
   }
 
   get notes(): Task[] {
-    return this.tasks.filter(t => t.type === 'note');
+    return this.tasks.filter((t) => t.type === 'note');
   }
 
   saveTasks() {
@@ -186,43 +184,41 @@ export class Today {
   showTags = false;
 
   showTagsDialog() {
-    this.showTags= true;
+    this.showTags = true;
   }
 
   updateTaskTags(tags: string[]) {
-  if (this.selectedTask) {
-    this.selectedTask.tags = tags;
-    this.saveTasks();
+    if (this.selectedTask) {
+      this.selectedTask.tags = tags;
+      this.saveTasks();
+    }
+    this.showTags = false;
   }
-  this.showTags = false;
-}
 
-setDueDate(date: string) {
-  if (this.selectedTask) {
-    this.selectedTask.dueDate = date;
-    this.saveTasks();
+  setDueDate(date: string) {
+    if (this.selectedTask) {
+      this.selectedTask.dueDate = date;
+      this.saveTasks();
+    }
   }
-}
 
-get hasPinned(): boolean {
-  return this.tasks.some(t => t.pinned);
-}
-
-get pinnedTasks(): Task[] {
-  return this.tasks.filter(t => t.pinned);
-}
-
-get unpinnedTasks(): Task[] {
-  return this.tasks.filter(t => !t.pinned);
-}
-
-// ✅ yeh missing tha
-pinTask() {
-  if (this.selectedTask) {
-    this.selectedTask.pinned = !this.selectedTask.pinned;
-    this.saveTasks();
+  get hasPinned(): boolean {
+    return this.tasks.some((t) => t.pinned);
   }
-}
 
+  get pinnedTasks(): Task[] {
+    return this.tasks.filter((t) => t.pinned);
+  }
 
+  get unpinnedTasks(): Task[] {
+    return this.tasks.filter((t) => !t.pinned);
+  }
+
+  // ✅ yeh missing tha
+  pinTask() {
+    if (this.selectedTask) {
+      this.selectedTask.pinned = !this.selectedTask.pinned;
+      this.saveTasks();
+    }
+  }
 }

@@ -1,8 +1,6 @@
 <p-dialog 
   [(visible)]="visible" 
-  (onHide)="closeDialog()" 
-  [modal]="false" 
-  [dismissableMask]="true"
+  [modal]="false"   
   [style]="{ width: '24rem', position: 'fixed', left: '4rem', bottom: '1.5rem' }"
   [closable]="false" 
   [showHeader]="false"
@@ -29,8 +27,6 @@
 
   <!-- Content -->
   <div class="p-6 flex flex-col items-center justify-center">
-
-    <!-- Notifications Tab Content -->
     <ng-container *ngIf="activeTab === 'notifications'">
       <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" width="80" class="mb-4" />
       <p class="text-gray-800 text-base font-medium mb-1">No notifications</p>
@@ -39,7 +35,6 @@
       </p>
     </ng-container>
 
-    <!-- Activities Tab Content -->
     <ng-container *ngIf="activeTab === 'activities'">
       <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" width="80" class="mb-4" />
       <p class="text-gray-800 text-base font-medium mb-1">No task updates</p>
@@ -47,6 +42,5 @@
         Task update notifications will appear here
       </p>
     </ng-container>
-
   </div>
 </p-dialog>
