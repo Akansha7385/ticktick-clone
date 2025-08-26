@@ -88,7 +88,7 @@ export class Today {
 
   onRightClick(event: MouseEvent, cm: any, task: Task, menu: any) {
     this.selectedTask = task;
-    menu.buildMenu(task.type ?? 'task');   // ✅ rebuild menu dynamically
+    menu.buildMenu(task.type ?? 'task');  
     cm.show(event);
     event.preventDefault();
   }
@@ -216,7 +216,6 @@ get unpinnedTasks(): Task[] {
   return this.tasks.filter(t => !t.pinned);
 }
 
-// ✅ yeh missing tha
 pinTask() {
   if (this.selectedTask) {
     this.selectedTask.pinned = !this.selectedTask.pinned;

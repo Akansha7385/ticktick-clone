@@ -37,15 +37,16 @@
 
   <div class="mt-50">
     <button 
-      pButton 
-      icon="pi pi-refresh"
-      class="p-button-rounded p-button-text"
-      [ngClass]="{
-        '!text-blue-500': selectedIcon === 'pi-refresh',
-        '!text-gray-500': selectedIcon !== 'pi-refresh'
-      }"
-      (click)="selectedIcon = 'pi-refresh'">
-    </button>
+  pButton 
+  icon="pi pi-refresh"
+  class="p-button-rounded p-button-text"
+  [ngClass]="{
+    '!text-blue-500': selectedIcon === 'pi-refresh',
+    '!text-gray-500': selectedIcon !== 'pi-refresh'
+  }"
+  (click)="selectAndReload()">
+</button>
+
 
     <button 
       pButton 

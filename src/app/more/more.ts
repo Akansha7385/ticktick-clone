@@ -11,7 +11,7 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './more.html'
 })
 export class MoreComponent {
-  constructor(private router: Router) {}   // <-- Router inject
+  constructor(private router: Router) {} 
 
   @Input() visible: boolean = false;
   @Output() visibleChange = new EventEmitter<boolean>();
@@ -21,7 +21,7 @@ export class MoreComponent {
       label: 'Home', 
       icon: 'pi pi-home', 
       command: () => { 
-        this.router.navigate(['/home']);   // ✅ Ab chalega
+        this.router.navigate(['/home']);   
         this.closeDialog();         
       }  
     },

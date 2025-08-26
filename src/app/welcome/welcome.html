@@ -3,10 +3,10 @@
   
   <app-sidebar class="pt-6"/>
   <div class="flex-1 flex flex-col gap-4 p-6 bg-white">
-    <!-- Heading -->
+    
     <h1 class="text-black text-2xl font-semibold">Welcome</h1>
 
-    <!-- Input Box -->
+ 
     <input
   type="text"
   placeholder="+ Add task to Inbox"
@@ -16,13 +16,10 @@
   class="w-full !bg-gray-100 !text-black"
 />
 
-
-    <!-- Success/Error Message -->
     <div *ngIf="message" class="text-green-600 font-medium">
       {{ message }}
     </div>
 
-    <!-- Task Menu + Tags -->
     <app-task-menu
       #menu
       (pinTask)="pinTask()"
@@ -38,16 +35,13 @@
 
     <app-tags [display]="showTags" (tagsSelected)="updateTaskTags($event)"></app-tags>
 
-   <!-- 🔹 Case 1: No pinned → just show tasks (no heading) -->
 <ul *ngIf="!hasPinned" class="mt-2 text-black">
   <ng-container
     *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: activeTasks, parent: null }"
   ></ng-container>
 </ul>
-
-<!-- 🔹 Case 2: Show pinned & unpinned panels -->
 <div *ngIf="hasPinned" class="flex flex-col gap-6 mt-6">
-  <!-- Pinned Tasks -->
+
   <div *ngIf="pinnedTasks.length > 0">
     <h2 class="text-lg font-semibold flex items-center gap-2 text-black">
       <i class="pi pi-thumbtack text-red-500"></i> Pinned Tasks
@@ -75,7 +69,7 @@
     </ul>
   </div>
 
-  <!-- Unpinned Tasks -->
+
   <div *ngIf="unpinnedTasks.length > 0">
     <h2 class="text-lg font-semibold flex items-center gap-2 text-black">
       <i class="pi pi-folder-open text-blue-500"></i> Unpinned Tasks
