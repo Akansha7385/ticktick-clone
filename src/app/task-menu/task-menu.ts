@@ -8,7 +8,7 @@ import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
   standalone: true,
   imports: [CommonModule, ContextMenuModule],
   templateUrl: './task-menu.html',
-  styleUrls: ['./task-menu.css'],
+  styleUrls: ['./task-menu.scss'],
 })
 export class TaskMenu {
   @ViewChild('cm') cm!: ContextMenu;
