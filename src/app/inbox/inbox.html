@@ -1,11 +1,13 @@
 <div class="flex ">
   <app-sidemenu />
   
-  <app-sidebar class="pt-6 "/>
+  <!-- <app-sidebar class="pt-6 "/> -->
   <div class="flex-1 flex flex-col gap-4 p-6 bg-white">
     
+   <div class="flex">
+     <app-sidebar/>
     <h1 class="text-black text-2xl font-semibold">Inbox</h1>
-
+   </div>
     <input
   type="text"
   placeholder="+ Add task to Inbox"
@@ -35,7 +37,7 @@
 
     <app-tags [display]="showTags" (tagsSelected)="updateTaskTags($event)"></app-tags>
 
-<ul *ngIf="!hasPinned" class="mt-2 text-black">
+<ul *ngIf="!hasPinned" class="text-black">
   <ng-container
     *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: activeTasks, parent: null }"
   ></ng-container>

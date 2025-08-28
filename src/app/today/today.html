@@ -1,10 +1,13 @@
 <div class="flex h-screen">
   <app-sidemenu />
   
-  <app-sidebar class="pt-6"/>
+  <!-- <app-sidebar class="pt-6"/> -->
   <div class="flex-1 flex flex-col gap-4 p-6 bg-white">
     
+   <div class="flex">
+     <app-sidebar/>
     <h1 class="text-black text-2xl font-semibold">Today</h1>
+   </div>
 
     <input
   type="text"
@@ -98,7 +101,6 @@
   </div>
 </div>
 
-    <h2 class="text-xl font-semibold mt-6">Notes</h2>
     <ul class="mt-2 text-black">
       <li
         *ngFor="let note of notes"

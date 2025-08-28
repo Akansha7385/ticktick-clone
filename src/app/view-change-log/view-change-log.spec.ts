@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { More } from './more';
+import { ViewChangeLog } from './view-change-log';
 
-describe('More', () => {
-  let component: More;
-  let fixture: ComponentFixture<More>;
+describe('ViewChangeLog', () => {
+  let component: ViewChangeLog;
+  let fixture: ComponentFixture<ViewChangeLog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [More]
+      imports: [ViewChangeLog]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(More);
+    fixture = TestBed.createComponent(ViewChangeLog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

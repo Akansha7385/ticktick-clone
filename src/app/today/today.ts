@@ -9,6 +9,7 @@ import { Sidemenu } from '../sidemenu/sidemenu';
 import { CommonModule, NgFor } from '@angular/common';
 import { TaskMenu } from '../task-menu/task-menu';
 import { Tags } from "../tags/tags";
+import { Shortcut } from "../shortcut/shortcut";
 
 export interface Task { 
   id: string;
@@ -38,7 +39,7 @@ export interface Task {
     NgFor,
     TaskMenu,
     CommonModule,
-    Tags
+    Tags,
 ],
   templateUrl: './today.html',
   styleUrls: ['./today.css']

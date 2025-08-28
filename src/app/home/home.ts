@@ -8,6 +8,6 @@ import { RouterLink } from '@angular/router';
   styleUrl: './home.css'
 })
 export class Home {
-   @Input() visible: boolean = false;
+   @Input() visible: boolean = false; 
   @Output() visibleChange = new EventEmitter<boolean>();
 }
