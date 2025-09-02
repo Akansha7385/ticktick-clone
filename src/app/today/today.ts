@@ -9,7 +9,8 @@ import { Sidemenu } from '../sidemenu/sidemenu';
 import { CommonModule, NgFor } from '@angular/common';
 import { TaskMenu } from '../task-menu/task-menu';
 import { Tags } from "../tags/tags";
-import { Shortcut } from "../shortcut/shortcut";
+import { SplitterModule } from 'primeng/splitter';
+import { DatePicker } from 'primeng/datepicker';
 
 export interface Task { 
   id: string;
@@ -23,32 +24,45 @@ export interface Task {
    dueDate?: string; 
    list?: 'inbox' | 'welcome' | 'work';
    pinned?: boolean;
+    description?: string; 
 }
 
 @Component({
   selector: 'app-today',
   standalone: true,
-  imports: [
-    InputTextModule,
-    FormsModule,
-    Sidebar,
-    AutoCompleteModule,
-    AccordionModule,
-    CheckboxModule,
-    Sidemenu,
-    NgFor,
-    TaskMenu,
-    CommonModule,
-    Tags,
+imports: [
+  InputTextModule,
+  FormsModule,
+  Sidebar,
+  AutoCompleteModule,
+  AccordionModule,
+  CheckboxModule,
+  Sidemenu,
+  NgFor,
+  TaskMenu,
+  CommonModule,
+  Tags,
+  SplitterModule,
+  DatePicker
 ],
-  templateUrl: './today.html',
-  styleUrls: ['./today.css']
+templateUrl: './today.html',
+styleUrls: ['./today.css']
 })
 export class Today {
-  taskText: string = '';
+ taskText: string = '';
   tasks: Task[] = [];
   message: string = '';
-  selectedTask!: Task;
+  selectedTask: any = null;  
+  date:any=null;
+  sidebarVisible: boolean = false;
+
+
+
+  
+   toggleSidebar() {
+    this.sidebarVisible = !this.sidebarVisible;
+  }
+
 
   constructor() {
     const savedTasks = localStorage.getItem('tasks');
@@ -224,5 +238,41 @@ pinTask() {
   }
 }
 
+toggleTaskCompletion(task: Task) {
+  if (task.completed) {
+    this.tasks = this.tasks.filter(t => t.id !== task.id);
+    this.message = `Task Completed: ${task.text}`;
+  } else {
+    this.tasks.push(task);
+  }
+
+  this.saveTasks();
+  setTimeout(() => (this.message = ''), 2000);
+}
+
+getDisplayDate(selectedDate: Date | null): string {
+  if (!selectedDate) return '';
+
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  const isToday = selectedDate.toDateString() === today.toDateString();
+  const isTomorrow = selectedDate.toDateString() === tomorrow.toDateString();
+
+  if (isToday) return 'Today';
+  if (isTomorrow) return 'Tomorrow';
+
+  return new Intl.DateTimeFormat('en-GB').format(selectedDate); // dd/MM/yyyy
+}
+
+cyclePriority() {
+  if (!this.selectedTask) return;
+  const order: ('high' | 'medium' | 'low' | 'none')[] = ['high', 'medium', 'low', 'none'];
+  const currentIndex = order.indexOf(this.selectedTask.priority ?? 'none');
+  const nextIndex = (currentIndex + 1) % order.length;
+  this.selectedTask.priority = order[nextIndex];
+  this.saveTasks();
+}
 
 }

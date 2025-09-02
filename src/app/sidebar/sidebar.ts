@@ -1,21 +1,22 @@
-import { Component } from '@angular/core';
-import { DrawerModule } from 'primeng/drawer';
-import { ButtonModule } from 'primeng/button';
-import { AvatarModule } from 'primeng/avatar';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output} from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
   standalone:true,
-  imports: [DrawerModule, ButtonModule, AvatarModule, RouterLink],
+  imports: [ RouterLink, CommonModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })
 export class Sidebar {
 
-  visible: boolean = false;
+  @Input() visible: boolean = false; 
+  // visible = false;
+  @Output()onSideBarToggle = new EventEmitter<void>();
 
-  closeCallback(event: any): void {
-    this.visible = false;
+  toggleDrawer() {
+    this.visible = !this.visible;
+    this.onSideBarToggle.emit();
   }
 }

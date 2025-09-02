@@ -11,3 +11,7 @@
 ::ng-deep .p-checkbox .p-checkbox-box .p-checkbox-icon {
   color: black !important; /* tick black */
 }
+
+:host ::ng-deep .p-splitter .p-splitter-gutter {
+  background-color: #dfe0e0 !important;
+}
