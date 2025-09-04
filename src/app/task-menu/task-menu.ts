@@ -23,6 +23,8 @@ export class TaskMenu {
   @Output() openTags = new EventEmitter<void>();
   @Output() setDueDate = new EventEmitter<string>();
   @Output() pinTask = new EventEmitter<void>();
+  @Output() moveToList = new EventEmitter<string>();
+
 
   items: MenuItem[] = [];
 
@@ -91,10 +93,28 @@ export class TaskMenu {
         icon: 'pi pi-times',
         command: () => this.deleteTask.emit(),
       },
-      {
-        label: 'Move to',
-        items: [{ label: 'Inbox' }, { label: 'Welcome' }, { label: 'Work' }],
-      },
+    {
+  label: 'Move to',
+  items: [
+    {
+      label: 'Inbox',
+      command: () => this.moveToList.emit('inbox')
+    },
+    {
+      label: 'Welcome',
+      command: () => this.moveToList.emit('welcome')
+    },
+    {
+      label: 'Work',
+      command: () => this.moveToList.emit('work')
+    },
+    {
+      label: 'Today',
+      command: () => this.moveToList.emit('today')
+    }
+  ]
+}
+,
       {
         label: 'Tags',
         icon: 'pi pi-tags',

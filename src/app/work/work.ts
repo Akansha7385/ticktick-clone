@@ -10,7 +10,11 @@ import { CommonModule, NgFor } from '@angular/common';
 import { TaskMenu } from '../task-menu/task-menu';
 import { Tags } from "../tags/tags";
 import { SplitterModule } from 'primeng/splitter';
-import { DatePicker } from 'primeng/datepicker';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+
+
 
 export interface Task { 
   id: string;
@@ -22,7 +26,7 @@ export interface Task {
   type?: 'task' | 'note';  
    tags?: string[]; 
    dueDate?: string; 
-   list?: 'inbox' | 'welcome' | 'work';
+   list?: 'inbox' | 'welcome' | 'work' |'today' |'next7Days'
    pinned?: boolean;
     description?: string; 
 }
@@ -31,7 +35,7 @@ export interface Task {
   selector: 'app-work',
   standalone: true,
   imports: [
-    InputTextModule,
+  InputTextModule,
     FormsModule,
     Sidebar,
     AutoCompleteModule,
@@ -43,26 +47,25 @@ export interface Task {
     CommonModule,
     Tags,
     SplitterModule,
-    CommonModule,
-    DatePicker
+    DatePickerModule,
+    DragDropModule
+
 ],
   templateUrl: './work.html',
   styleUrl: './work.css'
 })
 export class Work {
- taskText: string = '';
+taskText: string = '';
   tasks: Task[] = [];
   message: string = '';
   selectedTask: any = null;  
   date:any=null;
   sidebarVisible: boolean = false;
- 
 
-  
+
    toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
   }
-
 
   constructor() {
     const savedTasks = localStorage.getItem('tasks');
@@ -75,31 +78,38 @@ export class Work {
     return Math.random().toString(36).substring(2, 9);
   }
 
-  addTask() {
-    if (this.taskText.trim()) {
-      this.tasks.push({
-        id: this.generateId(),
-        text: this.taskText.trim(),
-        completed: false,
-        priority: 'none',
-        subtasks: [],
-        type: 'task',
-      });
-      this.taskText = '';
-      this.saveTasks();
-    }
+ addTask() {
+  if (this.taskText.trim()) {
+    this.tasks.push({
+      id: this.generateId(),
+      text: this.taskText.trim(),
+      completed: false,
+      priority: 'none',
+      subtasks: [],
+      type: 'task',
+      list: 'work'
+    });
+    this.taskText = '';
+    this.saveTasks();
   }
+}
+
 
   completeTask(task: Task, parentTask?: Task) {
-    this.message = `Task Completed: ${task.text}`;
-    if (parentTask) {
-      parentTask.subtasks = parentTask.subtasks?.filter(sub => sub !== task);
-    } else {
-      this.tasks = this.tasks.filter(t => t !== task);
-    }
-    this.saveTasks();
-    setTimeout(() => (this.message = ''), 2000);
+  this.message = `Task Completed: ${task.text}`;
+
+  if (parentTask) {
+    // Agar ye ek subtask hai to parentTask ke subtasks se remove karo
+    parentTask.subtasks = parentTask.subtasks?.filter(sub => sub.id !== task.id);
+  } else {
+    // Agar ye main task hai to tasks se remove karo
+    this.tasks = this.tasks.filter(t => t.id !== task.id);
   }
+
+  this.saveTasks();
+  setTimeout(() => (this.message = ''), 2000);
+}
+
 
   onRightClick(event: MouseEvent, cm: any, task: Task, menu: any) {
     this.selectedTask = task;
@@ -223,13 +233,13 @@ get hasPinned(): boolean {
   return this.tasks.some(t => t.pinned);
 }
 
+get unpinnedTasks(): Task[] {
+  return this.tasks.filter(t => !t.pinned && t.list === 'work');
+}
 get pinnedTasks(): Task[] {
-  return this.tasks.filter(t => t.pinned);
+  return this.tasks.filter(t => t.pinned && t.list === 'work');
 }
 
-get unpinnedTasks(): Task[] {
-  return this.tasks.filter(t => !t.pinned);
-}
 
 pinTask() {
   if (this.selectedTask) {
@@ -274,4 +284,40 @@ cyclePriority() {
   this.selectedTask.priority = order[nextIndex];
   this.saveTasks();
 }
+
+dropTask(event: CdkDragDrop<Task[]>) {
+  // Reorder directly in the dropped list
+  moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+
+  // Ab dono lists rebuild karo
+  const pinned = this.tasks.filter(t => t.pinned);
+  const unpinned = this.tasks.filter(t => !t.pinned);
+
+  // Overwrite container list ke order ko maintain karte hue
+  if (event.container.data.every(t => t.pinned)) {
+    // Pinned reorder hua
+    this.tasks = [...event.container.data, ...unpinned];
+  } else {
+    // Unpinned reorder hua
+    this.tasks = [...pinned, ...event.container.data];
+  }
+
+  this.saveTasks();
+}
+
+dropSubtask(event: CdkDragDrop<Task[]>, parentTask: Task) {
+  moveItemInArray(parentTask.subtasks!, event.previousIndex, event.currentIndex);
+  this.saveTasks();
+}
+
+
+onMoveToList(list: string) {
+  if (this.selectedTask) {
+    this.selectedTask.list = list as Task['list']; 
+    this.saveTasks();
+    this.message = `Task moved to ${list}`;
+    setTimeout(() => (this.message = ''), 2000);
+  }
+}
+
 }

@@ -16,3 +16,6 @@
   background-color: #dfe0e0 !important;
 }
 
+[cdkDrag] {
+  cursor: grab;
+}

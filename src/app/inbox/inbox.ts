@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Sidebar } from '../sidebar/sidebar';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,21 +11,10 @@ import { TaskMenu } from '../task-menu/task-menu';
 import { Tags } from "../tags/tags";
 import { SplitterModule } from 'primeng/splitter';
 import { DatePickerModule } from 'primeng/datepicker';
-
-export interface Task { 
-  id: string;
-  text: string;
-  completed: boolean;
-  priority?: 'high' | 'medium' | 'low' | 'none';
-  subtasks?: Task[];
-  showSubtaskInput?: boolean;
-  type?: 'task' | 'note';  
-   tags?: string[]; 
-   dueDate?: string; 
-   list?: 'inbox' | 'welcome' | 'work';
-   pinned?: boolean;
-    description?: string; 
-}
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Subscription } from 'rxjs';
+import { TaskService, Task } from '../services/task.service'; // adjust path
 
 @Component({
   selector: 'app-inbox',
@@ -43,30 +32,31 @@ export interface Task {
     CommonModule,
     Tags,
     SplitterModule,
-    DatePickerModule
-
-],
+    DatePickerModule,
+    DragDropModule
+  ],
   templateUrl: './inbox.html',
   styleUrl: './inbox.css'
 })
-export class Inbox {
+export class Inbox implements OnDestroy {
   taskText: string = '';
   tasks: Task[] = [];
   message: string = '';
-  selectedTask: any = null;  
-  date:any=null;
+  selectedTask: any = null;
+  date: any = null;
   sidebarVisible: boolean = false;
+  showTags = false;
 
+  private tasksSub!: Subscription;
 
-   toggleSidebar() {
-    this.sidebarVisible = !this.sidebarVisible;
+  constructor(private taskService: TaskService) {
+    this.tasksSub = this.taskService.tasks$.subscribe(ts => {
+      this.tasks = ts;
+    });
   }
 
-  constructor() {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      this.tasks = JSON.parse(savedTasks);
-    }
+  ngOnDestroy() {
+    this.tasksSub?.unsubscribe();
   }
 
   private generateId(): string {
@@ -75,33 +65,37 @@ export class Inbox {
 
   addTask() {
     if (this.taskText.trim()) {
-      this.tasks.push({
+      const newTask: Task = {
         id: this.generateId(),
         text: this.taskText.trim(),
         completed: false,
         priority: 'none',
         subtasks: [],
         type: 'task',
-      });
+        list: 'inbox',
+        pinned: false
+      };
+      this.taskService.addTask(newTask);
       this.taskText = '';
-      this.saveTasks();
     }
   }
 
   completeTask(task: Task, parentTask?: Task) {
     this.message = `Task Completed: ${task.text}`;
+
     if (parentTask) {
-      parentTask.subtasks = parentTask.subtasks?.filter(sub => sub !== task);
+      parentTask.subtasks = parentTask.subtasks?.filter(sub => sub.id !== task.id);
     } else {
-      this.tasks = this.tasks.filter(t => t !== task);
+      this.tasks = this.tasks.filter(t => t.id !== task.id);
     }
+
     this.saveTasks();
     setTimeout(() => (this.message = ''), 2000);
   }
 
   onRightClick(event: MouseEvent, cm: any, task: Task, menu: any) {
     this.selectedTask = task;
-    menu.buildMenu(task.type ?? 'task');  
+    menu.buildMenu(task.type ?? 'task');
     cm.show(event);
     event.preventDefault();
   }
@@ -130,9 +124,7 @@ export class Inbox {
     }
   }
 
-  addSubtaskInput(task: Task) {
-    task.showSubtaskInput = true;
-  }
+  addSubtaskInput(task: Task) { task.showSubtaskInput = true; }
 
   addSubtask(task: Task, subtaskText: string) {
     if (!subtaskText.trim()) return;
@@ -184,93 +176,96 @@ export class Inbox {
     }
   }
 
-  get activeTasks(): Task[] {
-    return this.tasks.filter(t => t.type !== 'note');
-  }
-
-  get notes(): Task[] {
-    return this.tasks.filter(t => t.type === 'note');
-  }
+  get activeTasks(): Task[] { return this.tasks.filter(t => t.type !== 'note'); }
+  get notes(): Task[] { return this.tasks.filter(t => t.type === 'note'); }
 
   saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(this.tasks));
+    this.taskService.saveTasks(this.tasks);
   }
 
-  showTags = false;
-
-  showTagsDialog() {
-    this.showTags= true;
-  }
+  showTagsDialog() { this.showTags = true; }
 
   updateTaskTags(tags: string[]) {
-  if (this.selectedTask) {
-    this.selectedTask.tags = tags;
+    if (this.selectedTask) {
+      this.selectedTask.tags = tags;
+      this.saveTasks();
+    }
+    this.showTags = false;
+  }
+
+  setDueDate(date: string) {
+    if (this.selectedTask) {
+      this.selectedTask.dueDate = date;
+      this.saveTasks();
+    }
+  }
+
+  get hasPinned(): boolean { return this.tasks.some(t => t.pinned); }
+  get unpinnedTasks(): Task[] { return this.tasks.filter(t => !t.pinned && t.list === 'inbox'); }
+  get pinnedTasks(): Task[] { return this.tasks.filter(t => t.pinned && t.list === 'inbox'); }
+
+  pinTask() {
+    if (this.selectedTask) {
+      this.selectedTask.pinned = !this.selectedTask.pinned;
+      this.saveTasks();
+    }
+  }
+
+  toggleTaskCompletion(task: Task) {
+    if (task.completed) {
+      this.tasks = this.tasks.filter(t => t.id !== task.id);
+      this.message = `Task Completed: ${task.text}`;
+    } else {
+      this.tasks.push(task);
+    }
+    this.saveTasks();
+    setTimeout(() => (this.message = ''), 2000);
+  }
+
+  getDisplayDate(selectedDate: Date | null): string {
+    if (!selectedDate) return '';
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    const isToday = selectedDate.toDateString() === today.toDateString();
+    const isTomorrow = selectedDate.toDateString() === tomorrow.toDateString();
+    if (isToday) return 'Today';
+    if (isTomorrow) return 'Tomorrow';
+    return new Intl.DateTimeFormat('en-GB').format(selectedDate);
+  }
+
+  cyclePriority() {
+    if (!this.selectedTask) return;
+    const order: ('high' | 'medium' | 'low' | 'none')[] = ['high','medium','low','none'];
+    const currentIndex = order.indexOf(this.selectedTask.priority ?? 'none');
+    const nextIndex = (currentIndex + 1) % order.length;
+    this.selectedTask.priority = order[nextIndex];
     this.saveTasks();
   }
-  this.showTags = false;
-}
 
-setDueDate(date: string) {
-  if (this.selectedTask) {
-    this.selectedTask.dueDate = date;
+  dropTask(event: CdkDragDrop<Task[]>) {
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    const pinned = this.tasks.filter(t => t.pinned);
+    const unpinned = this.tasks.filter(t => !t.pinned);
+    if (event.container.data.every(t => t.pinned)) {
+      this.tasks = [...event.container.data, ...unpinned];
+    } else {
+      this.tasks = [...pinned, ...event.container.data];
+    }
     this.saveTasks();
   }
-}
 
-get hasPinned(): boolean {
-  return this.tasks.some(t => t.pinned);
-}
-
-get pinnedTasks(): Task[] {
-  return this.tasks.filter(t => t.pinned);
-}
-
-get unpinnedTasks(): Task[] {
-  return this.tasks.filter(t => !t.pinned);
-}
-
-pinTask() {
-  if (this.selectedTask) {
-    this.selectedTask.pinned = !this.selectedTask.pinned;
+  dropSubtask(event: CdkDragDrop<Task[]>, parentTask: Task) {
+    moveItemInArray(parentTask.subtasks!, event.previousIndex, event.currentIndex);
     this.saveTasks();
   }
-}
 
-toggleTaskCompletion(task: Task) {
-  if (task.completed) {
-    this.tasks = this.tasks.filter(t => t.id !== task.id);
-    this.message = `Task Completed: ${task.text}`;
-  } else {
-    this.tasks.push(task);
+  onMoveToList(list: string) {
+    if (this.selectedTask) {
+      this.selectedTask.list = list as Task['list'];
+      this.saveTasks();
+      this.message = `Task moved to ${list}`;
+      setTimeout(() => (this.message = ''), 2000);
+    }
   }
-
-  this.saveTasks();
-  setTimeout(() => (this.message = ''), 2000);
-}
-
-getDisplayDate(selectedDate: Date | null): string {
-  if (!selectedDate) return '';
-
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
-
-  const isToday = selectedDate.toDateString() === today.toDateString();
-  const isTomorrow = selectedDate.toDateString() === tomorrow.toDateString();
-
-  if (isToday) return 'Today';
-  if (isTomorrow) return 'Tomorrow';
-
-  return new Intl.DateTimeFormat('en-GB').format(selectedDate); // dd/MM/yyyy
-}
-
-cyclePriority() {
-  if (!this.selectedTask) return;
-  const order: ('high' | 'medium' | 'low' | 'none')[] = ['high', 'medium', 'low', 'none'];
-  const currentIndex = order.indexOf(this.selectedTask.priority ?? 'none');
-  const nextIndex = (currentIndex + 1) % order.length;
-  this.selectedTask.priority = order[nextIndex];
-  this.saveTasks();
-}
-
 }

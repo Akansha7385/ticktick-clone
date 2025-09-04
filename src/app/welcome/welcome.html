@@ -35,6 +35,7 @@
           (convertToTask)="convertNoteToTask()"
           (openTags)="showTagsDialog()"
           (setDueDate)="setDueDate($event)"
+          (moveToList)="onMoveToList($event)" 
         ></app-task-menu>
 
         <app-tags
@@ -42,67 +43,53 @@
           (tagsSelected)="updateTaskTags($event)"
         ></app-tags>
 
-        <ul *ngIf="!hasPinned" class="mt-2 text-black">
-          <ng-container
-            *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: activeTasks, parent: null }"
-          ></ng-container>
-        </ul>
+   <ul *ngIf="!hasPinned" 
+    class="mt-2 text-black"
+    cdkDropList 
+    [cdkDropListData]="unpinnedTasks"
+    (cdkDropListDropped)="dropTask($event)">
+  <li *ngFor="let task of unpinnedTasks" cdkDrag>
+    <ng-container
+      *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: [task], parent: null }"
+    ></ng-container>
+  </li>
+</ul>
+
+
+
 
         <div *ngIf="hasPinned" class="flex flex-col gap-6 mt-6">
           <div *ngIf="pinnedTasks.length > 0">
             <h2 class="text-lg font-semibold flex items-center gap-2 text-black">
               <i class="pi pi-thumbtack text-red-500"></i> Pinned Tasks
             </h2>
-            <ul class="mt-2">
-              <li
-                *ngFor="let task of pinnedTasks"
-                class="p-2 border-b border-gray-200 text-gray-800 flex items-center gap-2"
-                (contextmenu)="onRightClick($event, menu['cm'], task, menu)"
-                (click)="selectedTask = task"
-              >
-                <p-checkbox
-                  [(ngModel)]="task.completed"
-                  (onChange)="completeTask(task)"
-                  [binary]="true"
-                ></p-checkbox>
-
-                <span [class.line-through]="task.completed" class="text-sm">
-                  {{ task.text }}
-                </span>
-
-                <span *ngIf="task.dueDate" class="ml-auto text-sm text-gray-500">
-                  {{ task.dueDate }}
-                </span>
-              </li>
-            </ul>
+           <ul *ngIf="pinnedTasks.length"
+    class="mt-2 text-black"
+    cdkDropList
+    [cdkDropListData]="pinnedTasks"
+    (cdkDropListDropped)="dropTask($event)">
+  <li *ngFor="let task of pinnedTasks" cdkDrag>
+    <ng-container
+      *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: [task], parent: null }"
+    ></ng-container>
+  </li>
+</ul>
           </div>
 
           <div *ngIf="unpinnedTasks.length > 0">
             <h2 class="text-lg font-semibold flex items-center gap-2 text-black">
               <i class="pi pi-folder-open text-blue-500"></i> Unpinned Tasks
             </h2>
-            <ul class="mt-2">
-              <li
-                *ngFor="let task of unpinnedTasks"
-                class="p-2 border-b border-gray-200 text-gray-800 flex items-center gap-2"
-                (contextmenu)="onRightClick($event, menu['cm'], task, menu)"
-                (click)="selectedTask = task"
-              >
-                <p-checkbox
-                  [(ngModel)]="task.completed"
-                  (onChange)="completeTask(task)"
-                  [binary]="true"
-                ></p-checkbox>
-
-                <span [class.line-through]="task.completed">
-                  {{ task.text }}
-                </span>
-
-                <span *ngIf="task.dueDate" class="ml-auto text-sm text-gray-500">
-                  {{ task.dueDate }}
-                </span>
-              </li>
-            </ul>
+            <ul class="mt-2"
+    cdkDropList 
+    [cdkDropListData]="unpinnedTasks"
+    (cdkDropListDropped)="dropTask($event)">
+  <li *ngFor="let task of unpinnedTasks; let i = index" cdkDrag>
+    <ng-container
+      *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: [task], parent: null }"
+    ></ng-container>
+  </li>
+</ul>
           </div>
         </div>
 
@@ -128,7 +115,7 @@
           <div class="flex items-center gap-2">
             <p-checkbox
               [(ngModel)]="task.completed"
-              (onChange)="completeTask(task)"
+              (onChange)="completeTask(task, parent)"
               [binary]="true"
             ></p-checkbox>
 
@@ -166,11 +153,14 @@
             />
           </div>
 
-          <ul *ngIf="task.subtasks?.length" class="ml-6 mt-1">
-            <ng-container
-              *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: task.subtasks, parent: task }"
-            ></ng-container>
-          </ul>
+          <ul *ngIf="task.subtasks?.length"
+        cdkDropList
+        [cdkDropListData]="task.subtasks"
+        (cdkDropListDropped)="dropSubtask($event, task)"
+        class="ml-6 mt-1">
+      <ng-container *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: task.subtasks, parent: task }">
+      </ng-container>
+    </ul>
         </li>
       </ng-template>
     </ng-template>
@@ -198,6 +188,7 @@
       [readonlyInput]="true"
       [inputStyle]="{ opacity: 0, width: '0px', border: 'none', padding: '0' }"
       class="custom-datepicker"
+      (onSelect)="setDueDate(getDisplayDate($event))" 
     ></p-datepicker>
 
     <!-- Calendar Button -->

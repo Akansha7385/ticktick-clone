@@ -1,24 +1,23 @@
 <!-- Drawer Button -->
 <button (click)="toggleDrawer()" class="p-2 text-gray-600 bg-white rounded-md z-50 top-5 left-11">
-  ☰
+  <i class="pi pi-bars"></i>
 </button>
 
-
 <div
-  [ngClass]="visible ? 'w-50 block' : 'w-0 hidden'"
+  [ngClass]="visible ? 'w-48 block' : 'w-0 hidden'"
   class="fixed top-0 left-10 h-full bg-white shadow-lg transform transition-all duration-300 z-40 overflow-hidden"
 >
   <div class="flex flex-col h-full bg-gray-100">
     <!-- Today Section -->
     <div class="pt-4 px-4 text-sm text-gray-800">
       <a routerLink="/today" class="flex justify-between items-center p-2 rounded-md hover:bg-gray-200">
-        <span>📅 Today</span> <span>1</span>
+        <span><i class="pi pi-calendar"></i> Today</span> <span>1</span>
       </a>
       <a routerLink="/next7Days" class="flex justify-between items-center p-2 rounded-md hover:bg-gray-200">
-        <span>📆 Next 7 Days</span> <span>1</span>
+        <span><i class="pi pi-calendar-plus"></i> Next 7 Days</span> <span>1</span>
       </a>
       <a routerLink="/inbox" class="flex justify-between items-center p-2 rounded-md hover:bg-gray-200">
-        <span>📥 Inbox</span> <span>1</span>
+        <span><i class="pi pi-inbox"></i> Inbox</span> <span>1</span>
       </a>
     </div>
 
@@ -26,11 +25,17 @@
     <div class="pt-6 px-4 text-sm text-gray-800">
       <h5 class="text-xs font-semibold text-gray-600 uppercase mb-2">Lists</h5>
       <a routerLink="/welcome" class="flex justify-between items-center p-2 rounded-md hover:bg-gray-200">
-        <span>👋 Welcome</span> <span>1</span>
+        <span><i class="pi pi-face-smile"></i> Welcome</span> <span>1</span>
       </a>
-      <a routerLink="/work" class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200">👜 Work</a>
-      <a href="#" class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200">✅ Completed</a>
-      <a href="#" class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200">🗑️ Trash</a>
+      <a routerLink="/work" class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200">
+        <i class="pi pi-briefcase"></i> Work
+      </a>
+      <a href="/completed" class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200">
+        <i class="pi pi-check-circle"></i> Completed
+      </a>
+      <a href="#" class="flex items-center gap-2 p-2 rounded-md hover:bg-gray-200">
+        <i class="pi pi-trash"></i> Trash
+      </a>
     </div>
   </div>
 </div>

@@ -1,6 +1,10 @@
-<div class="h-screen w-[3vw]
- !bg-gray-100 flex flex-col items-center py-4 space-y-6 shadow-md">
-  <div>
+<div 
+  class="h-screen w-[3vw] sm:w-5 md:w-5 lg:w-10 
+         !bg-gray-100 flex flex-col items-center py-4 space-y-6 shadow-md
+         transition-all duration-300">
+
+  <!-- Top Buttons -->
+  <div class="flex flex-col space-y-2">
     <button 
       pButton 
       icon="pi pi-check"
@@ -33,21 +37,23 @@
       }"
       (click)="selectedIcon = 'pi-search'; openSearchDialog()">
     </button>
-    <app-search-page [(visible)]="searchVisible"></app-search-page>
+    <app-search-page
+     [(visible)]="searchVisible">
+    </app-search-page>
   </div>
 
-  <div class="mt-50">
+  <!-- Bottom Buttons -->
+  <div class="mt-auto flex flex-col space-y-2 mb-4">
     <button 
-  pButton 
-  icon="pi pi-refresh"
-  class="p-button-rounded p-button-text"
-  [ngClass]="{
-    '!text-blue-500': selectedIcon === 'pi-refresh',
-    '!text-gray-500': selectedIcon !== 'pi-refresh'
-  }"
-  (click)="selectAndReload()">
-</button>
-
+      pButton 
+      icon="pi pi-refresh"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-refresh',
+        '!text-gray-500': selectedIcon !== 'pi-refresh'
+      }"
+      (click)="selectAndReload()">
+    </button>
 
     <button 
       pButton 
@@ -80,7 +86,6 @@
     </app-more>
 
     <app-shortcut [(visible)]="shortcutVisible"></app-shortcut>
-
     <app-home *ngIf="homeVisible"></app-home>
   </div>
 </div>

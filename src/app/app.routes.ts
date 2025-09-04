@@ -10,6 +10,7 @@ import { Next7Days } from './next7-days/next7-days';
 import { Work } from './work/work';
 import { ViewChangeLog } from './view-change-log/view-change-log';
 import { HelpCenter } from './help-center/help-center';
+import { Completed } from './completed/completed';
 
 export const routes: Routes = [
   { path: 'home', component: Home },
@@ -22,6 +23,7 @@ export const routes: Routes = [
    { path: 'work', component: Work },
    { path: 'view-change-log', component: ViewChangeLog },
    { path: 'help-center', component: HelpCenter },
+   { path: 'completed', component: Completed },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
    { path: '**', component: Error }
 ];
