@@ -81,11 +81,10 @@
     <app-more 
       [visible]="moreVisible"
       (visibleChange)="moreVisible = $event"
-      (shortcutClick)="openShortcutDialog()"
-      (homeClick)="openHomePage()">
+      (shortcutClick)="openShortcutDialog()">
     </app-more>
 
     <app-shortcut [(visible)]="shortcutVisible"></app-shortcut>
-    <app-home *ngIf="homeVisible"></app-home>
   </div>
 </div>
+

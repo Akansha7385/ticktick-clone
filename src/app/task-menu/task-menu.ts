@@ -21,7 +21,7 @@ export class TaskMenu {
   @Output() convertToNote = new EventEmitter<void>();
   @Output() convertToTask = new EventEmitter<void>();
   @Output() openTags = new EventEmitter<void>();
-  @Output() setDueDate = new EventEmitter<string>();
+@Output() setDueDate = new EventEmitter<Date>();
   @Output() pinTask = new EventEmitter<void>();
   @Output() moveToList = new EventEmitter<string>();
 
@@ -40,12 +40,16 @@ export class TaskMenu {
           {
             label: 'Today',
             icon: 'pi pi-sun',
-            command: () => this.setDueDate.emit('Today'),
+           command: () => this.setDueDate.emit(new Date()), 
           },
           {
             label: 'Tomorrow',
             icon: 'pi pi-moon',
-            command: () => this.setDueDate.emit('Tomorrow'),
+           command: () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  this.setDueDate.emit(tomorrow);
+}
           },
           { label: 'Pick a Date', icon: 'pi pi-calendar' },
         ],
@@ -150,3 +154,5 @@ export class TaskMenu {
     this.cm.show(event);
   }
 }
+
+

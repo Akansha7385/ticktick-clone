@@ -6,7 +6,6 @@ import { SearchPage } from '../search-page/search-page';
 import { NotificationPage } from '../notification-page/notification-page';
 import { MoreComponent } from '../more/more';
 import { Shortcut } from '../shortcut/shortcut';
-import { Home } from '../home/home'; 
 
 @Component({
   selector: 'app-sidemenu',
@@ -19,7 +18,6 @@ import { Home } from '../home/home';
     NotificationPage,
     MoreComponent,
     Shortcut,
-    Home,
   ],
   templateUrl: './sidemenu.html',
   styleUrl: './sidemenu.css',
@@ -30,7 +28,6 @@ export class Sidemenu {
   notificationVisible = false;
   moreVisible = false;
   shortcutVisible = false;
-  homeVisible = false; 
 
   openSearchDialog() {
     this.searchVisible = true;
@@ -48,14 +45,19 @@ export class Sidemenu {
     this.shortcutVisible = true;
   }
 
-  openHomePage() {
-    this.homeVisible = true;
-  }
-
   selectAndReload() {
     this.selectedIcon = 'pi-refresh';
     setTimeout(() => {
       location.reload();
     }, 150); 
   }
+
+
+
+
+
+
+
+
+
 }

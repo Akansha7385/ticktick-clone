@@ -1,4 +1,3 @@
-// task.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -15,6 +14,7 @@ export interface Task {
   pinned?: boolean;
   description?: string;
   showSubtaskInput?: boolean;
+  categoryId?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,7 +33,7 @@ export class TaskService {
     return this.tasksSubject.value;
   }
 
-  saveTasks(tasks: Task[]) {
+   saveTasks(tasks: Task[]) {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     this.tasksSubject.next(tasks);
   }
