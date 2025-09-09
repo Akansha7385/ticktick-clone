@@ -66,22 +66,20 @@ export class CategoryService {
     // 🔹 Save updated list in localStorage
     localStorage.setItem('categories', JSON.stringify(this.categoryList));
   }
-
-  removeNewCategory(categoryConfig: any) {
-    // 🔹 Default categories delete na hon
-    const isDefault = this.defaultCategories.some(cat => cat.id === categoryConfig.id);
-    if (isDefault) return;
-
-    this.categoryList = this.categoryList.filter(item => item.id !== categoryConfig.id);
-    this.categoryListSubject.next(this.categoryList);
-
-    // 🔹 Update localStorage
-    localStorage.setItem('categories', JSON.stringify(this.categoryList));
-  }
-
   getCategoryDetails(id: number) {
-    return this.categoryList.find(item => item.id === id) || {};
-  }
+  return this.categoryList.find(item => item.id === id) || {};
+}
+
+
+removeNewCategory(categoryConfig: any) {
+  const isDefault = this.defaultCategories.some(cat => cat.id === categoryConfig.id);
+  if (isDefault) return;
+
+  this.categoryList = this.categoryList.filter(item => item.id !== categoryConfig.id);
+  this.categoryListSubject.next(this.categoryList);
+  localStorage.setItem('categories', JSON.stringify(this.categoryList));
+}
+
 
   // 🔹 Reset to default categories (optional helper)
   resetCategories() {
@@ -89,4 +87,10 @@ export class CategoryService {
     this.categoryListSubject.next(this.categoryList);
     localStorage.setItem('categories', JSON.stringify(this.categoryList));
   }
+  deleteCategory(categoryId: number) {
+  this.categoryListSubject.next(
+    this.categoryListSubject.getValue().filter(c => c.id !== categoryId)
+  );
+}
+
 }

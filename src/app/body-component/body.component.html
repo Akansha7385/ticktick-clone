@@ -16,7 +16,8 @@
             pInputText
             [(ngModel)]="taskText"
             (keyup.enter)="addTask()"
-            class="w-full !bg-gray-100 !text-black"
+            class="w-full !bg-white !text-black hover:!bg-gray-100"
+            pTooltip="EnterTask" tooltipPosition="top"
           />
           <app-popup
             (prioritySelected)="onPrioritySelect($event)"
@@ -95,7 +96,18 @@
             <p-checkbox [(ngModel)]="task.completed" (onChange)="completeTask(task, parent)" [binary]="true"></p-checkbox>
 
             <!-- Editable Task Text -->
-            <input *ngIf="task === selectedTask" [(ngModel)]="task.text" (blur)="saveTasks()" class="w-full bg-white text-black border rounded p-1" />
+            <input *ngIf="task === selectedTask"
+       [(ngModel)]="task.text"
+       (blur)="saveTasks()"
+       (keyup.enter)="onEnterSave($event)"
+       class="w-full bg-white border-none rounded p-1 focus:outline-none  caret-black"
+       [ngClass]="{
+         'text-red-500': task.priority === 'high',
+         'text-yellow-500': task.priority === 'medium',
+         'text-blue-500': task.priority === 'low',
+         'text-black': task.priority === 'none'
+       }" />
+
             <span *ngIf="task !== selectedTask"
                   [class.text-red-500]="task.priority === 'high'"
                   [class.text-yellow-500]="task.priority === 'medium'"
@@ -124,11 +136,14 @@
  
     <!-- Right Panel -->
     <ng-template #panel>
-      <div class="p-6 text-black h-full bg-white">
+      <div class="p-3 text-black h-full bg-white flex flex-col ">
         <ng-container *ngIf="selectedTask; else noTask">
           <div class="flex items-center gap-4 justify-start w-full">
             <div class="flex items-center gap-4">
-              <p-checkbox [(ngModel)]="selectedTask.completed" (onChange)="toggleTaskCompletion(selectedTask)" [binary]="true"></p-checkbox>
+              <p-checkbox [(ngModel)]="selectedTask.completed" (onChange)="toggleTaskCompletion(selectedTask)" [binary]="true" pTooltip="Checkbox" tooltipPosition="top"></p-checkbox>
+
+                <div class="mx-1 h-6 w-px bg-gray-400"></div>
+
               <p-datepicker
                 #dp
                 [(ngModel)]="date"
@@ -139,10 +154,12 @@
                 class="custom-datepicker"
                 (onSelect)="setDueDate($event)" 
               ></p-datepicker>
-              <button type="button" (click)="dp.toggle()" class="flex items-center gap-2 text-black rounded-lg px-3 py-2">
-                <i class="pi pi-calendar"></i>
-                <span *ngIf="date">{{ getDisplayDate(date) }}</span>
-              </button>
+              <button type="button" (click)="dp.toggle()" class="flex items-center gap-2 text-black rounded-lg ">
+  <i class="pi pi-calendar" pTooltip="Set Due Date" tooltipPosition="top"></i>
+  <span *ngIf="date; else showText">{{ getDisplayDate(date) }}</span>
+  <ng-template #showText>Set Due Date</ng-template>
+</button>
+
             </div>
 
             <button type="button" (click)="cyclePriority()" class="flex items-center gap-2 px-3 py-2 rounded-lg pl-10 ml-auto">
@@ -151,8 +168,7 @@
                 'text-yellow-500': selectedTask?.priority === 'medium',
                 'text-blue-500': selectedTask?.priority === 'low',
                 'text-gray-400': selectedTask?.priority === 'none'
-              }"></i>
-              <span>{{ selectedTask?.priority | titlecase }}</span>
+              }" pTooltip="Priority" tooltipPosition="top"></i>
             </button>
           </div>
 
@@ -163,7 +179,7 @@
           <span *ngIf="selectedTask !== selectedTask" (dblclick)="selectTask(selectedTask)" class="text-black text-xl font-semibold">{{selectedTask.text}}</span>
 
           <!-- Task Description -->
-          <textarea *ngIf="selectedTask === selectedTask" [(ngModel)]="selectedTask.description" (blur)="saveTasks()" rows="4" class="w-full p-2 border-none outline-none text-black bg-white mt-2"></textarea>
+          <textarea *ngIf="selectedTask === selectedTask" [(ngModel)]="selectedTask.description" (blur)="saveTasks()" rows="4" class="w-full p-2 border-none outline-none text-black bg-white mt-2" placeholder="Add Description"></textarea>
           <span *ngIf="selectedTask !== selectedTask" (dblclick)="selectTask(selectedTask)" class="text-gray-700 block mt-2">{{selectedTask.description || 'No description'}}</span>
 
         </ng-container>
@@ -171,6 +187,26 @@
         <ng-template #noTask>
           <p class="text-gray-500">Select a task from the left to view details</p>
         </ng-template>
+
+         <div class="mt-auto flex justify-end">
+     <button (click)="rightMenu.open($event)" 
+        class="p-2 rounded-full hover:bg-gray-200">
+  <i class="pi pi-ellipsis-h text-gray-600 text-xl"></i>
+</button>
+<app-task-menu
+  #rightMenu
+  (pinTask)="pinTask()"
+  (deleteTask)="deleteSelectedTask()"
+  (setPriority)="setPriority($event)"
+  (addSubtask)="addSubtaskInput(selectedTask)"
+  (copyLink)="copyTaskLink()"
+  (convertToNote)="convertTaskToNote()"
+  (convertToTask)="convertNoteToTask()"
+  (openTags)="showTagsDialog()"
+  (setDueDate)="setDueDate($event)"
+  (moveToList)="onMoveToList($event)">
+</app-task-menu>
+    </div>
       </div>
     </ng-template>
 

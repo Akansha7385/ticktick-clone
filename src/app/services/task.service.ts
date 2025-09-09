@@ -46,4 +46,12 @@ export class TaskService {
   searchTasks(query: string): Task[] {
     return this.tasks.filter(t => t.text.toLowerCase().includes(query.toLowerCase()));
   }
+  
+  pinAllTasksOfCategory(categoryId: number) {
+    const updated = this.tasks.map(t => {
+      if (t.categoryId === categoryId) t.pinned = true;
+      return t;
+    });
+    this.saveTasks(updated);
+  }
 }

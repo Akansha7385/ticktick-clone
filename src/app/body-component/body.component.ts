@@ -13,6 +13,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TaskService } from '../services/task.service';
 import { CategoryService } from '../services/category.service';
 import { Popup } from '../popup/popup';
+import { TooltipModule } from 'primeng/tooltip';
+
 
 export interface Task {
   id: string;
@@ -45,7 +47,7 @@ export interface Task {
     SplitterModule,
     DatePickerModule,
     DragDropModule,
-   Popup
+   Popup, TooltipModule
   ],
   templateUrl: './body.component.html',
   styleUrls: ['./body.component.css'],
@@ -131,50 +133,57 @@ export class BodyComponent {
 
 
 addTask() {
-  if (this.taskText.trim()) {
-    const newTask: Task = {
-      id: this.generateId(),
-      text: this.taskText.trim(),
-      completed: false,
-      priority: this.selectedPriority,
-      subtasks: [],
-      type: 'task',
-      pinned: false,
-      list: this.selectedCategory, 
-      categoryId: this.selectedCategoryDetails.id 
-    };
+  const invalidPattern =/[^a-zA-Z0-9\s]/; // sirf letters, numbers aur spaces allow
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (this.selectedCategoryDetails.id == 1) {
-      // Today
-      newTask.dueDate = today.toISOString();
-      newTask.list = 'today';
-    } else if (this.selectedCategoryDetails.id == 2) {
-      // Next 7 Days
-      const next7 = new Date();
-      next7.setDate(today.getDate() + 7);
-      next7.setHours(0, 0, 0, 0);
-      newTask.dueDate = next7.toISOString();
-      newTask.list = 'next7Days';
-    } else if (this.selectedCategoryDetails.id == 3) {
-      // Inbox
-      newTask.dueDate = null;
-      newTask.list = 'inbox';
-    }
-    // baki sab custom categories
-    else {
-      newTask.dueDate = null;
-      newTask.list = 'custom';
-    }
-
-    this.allTasks.push(newTask);
-    this.getTasksByCategoryId(this.selectedCategoryDetails.id);
-    this.taskText = '';
-    this.saveTasks();
+  if (!this.taskText.trim()) {
+    return;
   }
+
+  if (invalidPattern.test(this.taskText)) {
+    this.message = 'Invalid characters not allowed!';
+    setTimeout(() => (this.message = ''), 2000);
+    return;
+  }
+
+  const newTask: Task = {
+    id: this.generateId(),
+    text: this.taskText.trim(),
+    completed: false,
+    priority: this.selectedPriority,
+    subtasks: [],
+    type: 'task',
+    pinned: false,
+    list: this.selectedCategory,
+    categoryId: this.selectedCategoryDetails.id 
+  };
+
+  // Due date / category logic wahi rahega
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (this.selectedCategoryDetails.id == 1) {
+    newTask.dueDate = today.toISOString();
+    newTask.list = 'today';
+  } else if (this.selectedCategoryDetails.id == 2) {
+    const next7 = new Date();
+    next7.setDate(today.getDate() + 7);
+    next7.setHours(0, 0, 0, 0);
+    newTask.dueDate = next7.toISOString();
+    newTask.list = 'next7Days';
+  } else if (this.selectedCategoryDetails.id == 3) {
+    newTask.dueDate = null;
+    newTask.list = 'inbox';
+  } else {
+    newTask.dueDate = null;
+    newTask.list = 'custom';
+  }
+
+  this.allTasks.push(newTask);
+  this.getTasksByCategoryId(this.selectedCategoryDetails.id);
+  this.taskText = '';
+  this.saveTasks();
 }
+
 
   completeTask(task: Task, parentTask?: Task) {
   task.completed = true;
@@ -346,6 +355,7 @@ addTask() {
       }
 
       this.saveTasks();
+      
     }
   }
 
@@ -470,9 +480,28 @@ addTask() {
       setTimeout(() => (this.message = ''), 2000);
     }
   }
-  // Click pe task select karne ke liye
 selectTask(task: Task) {
-  this.selectedTask = task;
+  // find the actual task in allTasks by ID
+  const originalTask = this.allTasks.find(t => t.id === task.id);
+  if (originalTask) {
+    this.selectedTask = originalTask;
+    this.date = originalTask.dueDate ? new Date(originalTask.dueDate) : null;
+  }
 }
 
+
+onEnterSave(event: Event) {
+  const input = event.target as HTMLInputElement;
+  this.saveTasks();
+  input.blur(); // focus hata do
 }
+
+
+customCategories = [
+  { id: 4, name: 'Work' },
+  { id: 5, name: 'Personal' }
+];
+
+
+}
+ 

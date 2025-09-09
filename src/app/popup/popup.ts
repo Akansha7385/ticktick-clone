@@ -11,7 +11,7 @@ import { MenuItem } from 'primeng/api';
 })
 export class Popup {
      @Output() prioritySelected = new EventEmitter<'high' | 'medium' | 'low' | 'none'>();
-     @Output() categorySelected = new EventEmitter<'inbox' | 'today' | 'next7Days'>(); 
+     @Output() categorySelected = new EventEmitter<'inbox' | 'today'>(); 
      @Output() openTags = new EventEmitter<void>();
 
 
@@ -52,7 +52,7 @@ export class Popup {
   setPriority(priority: 'high' | 'medium' | 'low' | 'none') {
     this.prioritySelected.emit(priority);
   }
-  setCategory(category: 'inbox' | 'today' | 'next7Days') {
+  setCategory(category: 'inbox' | 'today') {
   this.categorySelected.emit(category);
 }
 }

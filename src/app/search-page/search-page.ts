@@ -14,6 +14,7 @@ import { CommonModule, NgFor } from '@angular/common';
 export class SearchPage {
 @Input() visible: boolean = false;
   @Output() visibleChange = new EventEmitter<boolean>();
+  
 
   query: string = '';
   results: Task[] = [];
@@ -24,7 +25,9 @@ export class SearchPage {
     this.results = this.taskService.searchTasks(this.query);
   }
 
-  closeDialog() {
-    this.visible = false;
-  }
+closeDialog() {
+  this.visible = false;            
+  this.visibleChange.emit(false);   
+}
+
 }

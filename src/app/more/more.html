@@ -1,6 +1,6 @@
 <div 
   *ngIf="visible" 
-  class="fixed bottom-0 left-0 mb-4 ml-4 w-50 bg-white shadow-lg rounded-lg p-2 transition-transform duration-300"
+  class="fixed bottom-0 left-0 mb-4 ml-4 w-50 bg-white shadow-lg rounded-lg p-2 transition-transform duration-300 z-50"
   [ngClass]="{ 'translate-y-full': !visible, 'translate-y-0': visible }"
 >
   <p-tieredMenu 
