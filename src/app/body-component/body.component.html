@@ -20,7 +20,7 @@
           </h1>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" *ngIf="allowAddTask">
           <input
             type="text"
             placeholder="+ Add task to Inbox"
@@ -160,7 +160,7 @@
 
             <!-- Editable Task Text -->
             <input
-              *ngIf="task === selectedTask"
+              *ngIf="task === selectedTask && allowEditing"
               [(ngModel)]="task.text"
               (blur)="saveTasks()"
               (keyup.enter)="onEnterSave($event)"
@@ -174,7 +174,7 @@
             />
 
             <span
-              *ngIf="task !== selectedTask"
+              *ngIf="!allowEditing || task !== selectedTask"
               [class.text-red-500]="task.priority === 'high'"
               [class.text-yellow-500]="task.priority === 'medium'"
               [class.text-blue-500]="task.priority === 'low'"
@@ -300,6 +300,7 @@
               type="button"
               (click)="cyclePriority()"
               class="flex items-center gap-2 px-3 py-2 rounded-lg pl-10 ml-auto"
+               *ngIf="allowPriorityFeature"
             >
               <i
                 class="pi pi-flag"

@@ -23,11 +23,13 @@ export class CategoryService {
   selectedCategory = new BehaviorSubject(3);
 
   // 🔹 Default Categories
-  private defaultCategories = [
-    { name: 'Inbox', id: 3 },
-    { name: 'Today', id: 1 },
-    { name: 'Next 7 Days', id: 2 },
-  ];
+ private defaultCategories = [
+  { name: 'Inbox', id: 3 },
+  { name: 'Today', id: 1 },
+  { name: 'Next 7 Days', id: 2 },
+  { name: 'Completed', id: 4 } 
+];
+
 
   categoryList: any[] = [];
   categoryListSubject = new BehaviorSubject<any[]>([]);
