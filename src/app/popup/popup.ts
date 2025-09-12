@@ -31,7 +31,7 @@
 
 
     buildMenu() {
-     const defaultCategoryIds = [1, 3];
+     const defaultCategoryIds = [1, 2, 3, 4];
 
 const categoryItems = [
   { label: 'Inbox', icon: 'pi pi-inbox', command: () => this.setCategory(3) },

@@ -45,10 +45,9 @@
           <i class="pi pi-plus"></i>
         </button>
       </div>
-
-      <div
-        *ngFor="let category of categoryList.slice(3)"
-        class="flex items-center w-full mb-2"
+<ng-container *ngFor="let category of categoryList.slice(3)">
+      <div class="flex items-center w-full mb-2"
+        *ngIf="category.id !== 4"
       >
         <!-- Left side button -->
         <p-button
@@ -70,6 +69,7 @@
         >
         </app-category-menu>
       </div>
+      </ng-container>
     </div>
   </div>
 </div>
