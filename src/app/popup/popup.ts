@@ -67,7 +67,14 @@ const categoryItems = [
           items: [
             { label: 'Add Tags', command: () => this.openTags.emit() }
           ]
-        }
+        },
+        {
+          label: 'Section',
+          icon: 'pi pi-plus',
+          items: [
+            { label: 'Add Section', command: () => this.openTags.emit() }
+          ]
+        },
       ];
     }
 

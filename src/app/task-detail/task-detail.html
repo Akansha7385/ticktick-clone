@@ -1,0 +1,30 @@
+<p-splitter style="height: 100vh; border: none;" [minSizes]="[25, 40]" class="!bg-white">
+  <!-- Left Panel: Task Names -->
+  <ng-template pTemplate="panel">
+    <div class="w-1/3 border-r p-2 ml-70 mt-40">
+    <h2 class="text-3xl font-bold text-black">{{ task?.text }}</h2>
+  </div>
+  </ng-template>
+
+  <!-- Right Panel: Task Details -->
+  <ng-template pTemplate="panel">
+    <div class="p-4">
+      <h2 class="text-2xl font-bold">Task Details</h2>
+
+      <ng-container *ngIf="task; else notFound">
+        <p class="text-black"><b>Title:</b> {{ task.text }}</p>
+        <p class="text-black"><b>Priority:</b> {{ task.priority }}</p>
+        <p class="text-black"><b>Due Date:</b> {{ getDisplayDate(task.dueDate) || 'No Due Date' }}</p>
+        <p class="text-black"><b>Status:</b> {{ task.completed ? 'Completed' : 'Pending' }}</p>
+        <p class="text-black"><b>Description:</b> {{ task.description || 'No Description' }}</p>
+      </ng-container>
+
+      <ng-template #notFound>
+        <p class="text-red-500">Task not found!</p>
+      </ng-template>
+    </div>
+  </ng-template>
+</p-splitter>
+
+
+

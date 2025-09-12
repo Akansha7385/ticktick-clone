@@ -14,6 +14,7 @@ import { TaskService } from '../services/task.service';
 import { CategoryService } from '../services/category.service';
 import { Popup } from '../popup/popup';
 import { TooltipModule } from 'primeng/tooltip';
+import { Router } from '@angular/router';
 
 export interface Task {
   id: string;
@@ -81,7 +82,8 @@ export class BodyComponent {
 
   constructor(
     private TaskService: TaskService,
-    private CategoryService: CategoryService
+    private CategoryService: CategoryService,
+    private router: Router
   ) {
     const savedTasks = localStorage.getItem('tasks');
     if (savedTasks) {
@@ -308,15 +310,17 @@ export class BodyComponent {
   }
 
   //copy task link
-  copyTaskLink() {
-    if (!this.selectedTask) return;
+    copyTaskLink() {
+  if (!this.selectedTask) return;
 
-    const link = `${window.location.origin}/task/${this.selectedTask.id}`;
-    navigator.clipboard
-      .writeText(link)
-      .then(() => alert('Task link copied!'))
-      .catch((err) => console.error('Failed to copy link:', err));
-  }
+  const url = this.router.serializeUrl(
+    this.router.createUrlTree(['/task', this.selectedTask.id])
+  );
+
+  navigator.clipboard.writeText(`${window.location.origin}${url}`)
+    .then(() => alert('Task link copied!'))
+    .catch(err => console.error('Failed to copy link:', err));
+}
 
   //convert task to notes
   convertTaskToNote() {
