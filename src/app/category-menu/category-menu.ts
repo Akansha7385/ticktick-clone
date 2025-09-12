@@ -20,11 +20,11 @@ export class CategoryMenu implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['category'] && this.category) {
       this.items = [
-        {
-          label: 'Pin All Tasks',
-          icon: 'pi pi-thumbtack',
-          command: () => this.pinAllTasks.emit(this.category.id)
-        },
+        // {
+        //   label: 'Pin All Tasks',
+        //   icon: 'pi pi-thumbtack',
+        //   command: () => this.pinAllTasks.emit(this.category.id)
+        // },
         {
           label: 'Delete',
           icon: 'pi pi-trash',

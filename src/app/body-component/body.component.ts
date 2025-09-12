@@ -79,8 +79,13 @@ export class BodyComponent {
       this.allTasks = JSON.parse(savedTasks);
     }
     this.CategoryService.selectedCategory.subscribe((id) => {
-      this.getTasksByCategoryId(id);
-    });
+    this.getTasksByCategoryId(id);
+  });
+
+  // Subscribe to category list updates
+  this.CategoryService.categoryListSubject.subscribe((cats) => {
+    this.customCategories = cats; // include all default + user-added
+  });
   }
   
  //popup s priority update krne k lie
@@ -93,38 +98,24 @@ export class BodyComponent {
 }
 
 //task categorize based on id
-  getTasksByCategoryId(id: number) {
-    if (id == 1) {
-      // Today
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      this.tasks = this.allTasks.filter((item) => {
-        if (!item.dueDate) return false;
-        const d = new Date(item.dueDate);
-        d.setHours(0, 0, 0, 0);
-        return d.getTime() === today.getTime();
-      });
-    } else if (id == 2) {
-      // Next 7 days
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const next7 = new Date();
-      next7.setDate(today.getDate() + 7);
-
-      this.tasks = this.allTasks.filter((item) => {
-        if (!item.dueDate) return false;
-        const d = new Date(item.dueDate);
-        d.setHours(0, 0, 0, 0);
-        return d > today && d <= next7;
-      });
-    } else if (id == 3) {
-      // Inbox = sabhi tasks
-      this.tasks = this.allTasks;
-    } else {
-      this.tasks = this.allTasks.filter((item) => item.categoryId === id);
-    }
-    this.selectedCategoryDetails = this.CategoryService.getCategoryDetails(id);
+getTasksByCategoryId(id: number) {
+  if (id === 1) {
+    // Today
+  } else if (id === 2) {
+    // Next 7 Days
+  } else if (id === 3) {
+    // Inbox
+    this.tasks = this.allTasks;
+  } else if (id === 4) {
+    // Completed
+    this.tasks = this.allTasks.filter(task => task.completed);
+  } else {
+    this.tasks = this.allTasks.filter(item => item.categoryId === id);
   }
+  this.selectedCategoryDetails = this.CategoryService.getCategoryDetails(id);
+}
+
+
 
   //for random id generation
   private generateId(): string {
@@ -184,6 +175,32 @@ addTask() {
   this.saveTasks();
 }
 
+duplicateTask() {
+  if (!this.selectedTask) return;
+
+  // Recursive function to duplicate subtasks
+  const duplicateSubtasks = (subtasks?: Task[]): Task[] => {
+    if (!subtasks) return [];
+    return subtasks.map(sub => ({
+      ...sub,
+      id: this.generateId(),
+      subtasks: duplicateSubtasks(sub.subtasks) // recursively duplicate
+    }));
+  };
+
+  const newTask: Task = {
+    ...this.selectedTask,
+    id: this.generateId(),
+    text: this.selectedTask.text + ' (Copy)',
+    subtasks: duplicateSubtasks(this.selectedTask.subtasks)
+  };
+
+  this.allTasks.push(newTask);
+  this.getTasksByCategoryId(this.selectedCategoryDetails.id); // refresh the task list
+  this.saveTasks();
+  this.message = 'Task duplicated!';
+  setTimeout(() => (this.message = ''), 2000);
+}
 
   completeTask(task: Task, parentTask?: Task) {
   task.completed = true;
@@ -258,15 +275,16 @@ addTask() {
   }
 
   //copy task link
-  copyTaskLink() {
-    if (this.selectedTask) {
-      const link = `${window.location.origin}/task/${this.selectedTask.id}`;//Task ka unique link create karta hai using current website URL + task ID.
-      navigator.clipboard.writeText(link).then(() => {
-        this.message = 'Task link copied!';
-        setTimeout(() => (this.message = ''), 2000);
-      });
-    }
-  }
+copyTaskLink() {
+  if (!this.selectedTask) return;
+
+  const link = `${window.location.origin}/task/${this.selectedTask.id}`;
+  navigator.clipboard.writeText(link)
+    .then(() => alert('Task link copied!'))
+    .catch(err => console.error('Failed to copy link:', err));
+}
+
+
 
   //convert task to notes 
   convertTaskToNote() {
@@ -403,15 +421,19 @@ addTask() {
     const dateObj = new Date(selectedDate);
     const today = new Date();
     const tomorrow = new Date();
+    const yesterday = new Date();
     today.setHours(0, 0, 0, 0);
     tomorrow.setDate(today.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
-
+    yesterday.setDate(today.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
     const isToday = dateObj.toDateString() === today.toDateString();
     const isTomorrow = dateObj.toDateString() === tomorrow.toDateString();
+    const isYesterday = dateObj.toDateString() === yesterday.toDateString();
 
     if (isToday) return 'Today';
     if (isTomorrow) return 'Tomorrow';
+    if (isYesterday) return 'Yesterday';
 
     // DD/MM/YY format
     return new Intl.DateTimeFormat('en-GB', {
@@ -496,11 +518,23 @@ onEnterSave(event: Event) {
   input.blur(); // focus hata do
 }
 
+customCategories: { id: number; name: string }[] = [];
 
-customCategories = [
-  { id: 4, name: 'Work' },
-  { id: 5, name: 'Personal' }
-];
+
+moveTaskToCategory(categoryId: number) { 
+  if(this.selectedTask) { 
+    this.selectedTask.categoryId = categoryId; 
+    const categoryDetails = this.CategoryService.getCategoryDetails(categoryId); 
+    this.selectedTask.list = categoryDetails?.name?.toLowerCase() || 'custom'; 
+    this.getTasksByCategoryId(categoryId); 
+    this.saveTasks(); 
+  } else {
+    // Update placeholder for new task
+    this.selectedCategoryDetails = this.CategoryService.getCategoryDetails(categoryId);
+    this.selectedCategory = this.selectedCategoryDetails?.name?.toLowerCase() as any || 'inbox';
+  }
+}
+
 
 
 }

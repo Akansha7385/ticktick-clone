@@ -1,12 +1,23 @@
-<div [ngClass]="{'ml-48': sidebarVisible, 'ml-0': !sidebarVisible}" class="flex-1 transition-all duration-300">
-  <p-splitter [style]="{ height: '100vh' , border: 'none'  }" class="flex-1"  [minSizes]="[25, 20]">
-    
+<div
+  [ngClass]="{ 'ml-48': sidebarVisible, 'ml-0': !sidebarVisible }"
+  class="flex-1 transition-all duration-300"
+>
+  <p-splitter
+    [style]="{ height: '100vh', border: 'none' }"
+    class="flex-1"
+    [minSizes]="[25, 20]"
+  >
     <!-- Left Panel -->
     <ng-template #panel>
-      <div class="flex-1 flex flex-col gap-4 p-6 bg-white h-full">
+      <div class="flex-1 flex flex-col gap-2 p-6 bg-white h-full">
         <div class="flex">
-          <app-sidebar [visible]="sidebarVisible" (onSideBarToggle)="sidebarVisible = !sidebarVisible"/>
-          <h1 class="text-black text-2xl font-semibold pl-4">{{selectedCategoryDetails.name}}</h1>
+          <app-sidebar
+            [visible]="sidebarVisible"
+            (onSideBarToggle)="sidebarVisible = !sidebarVisible"
+          />
+          <h1 class="text-black text-2xl font-semibold pl-4">
+            {{ selectedCategoryDetails.name }}
+          </h1>
         </div>
 
         <div class="flex items-center gap-2">
@@ -17,16 +28,21 @@
             [(ngModel)]="taskText"
             (keyup.enter)="addTask()"
             class="w-full !bg-white !text-black hover:!bg-gray-100"
-            pTooltip="EnterTask" tooltipPosition="top"
+            pTooltip="EnterTask"
+            tooltipPosition="top"
           />
           <app-popup
+            [customCategories]="customCategories"
             (prioritySelected)="onPrioritySelect($event)"
-            (categorySelected)="onCategorySelect($event)"
-            (openTags)="showTagsDialog()">
+            (categorySelected)="moveTaskToCategory($event)"
+            (openTags)="showTagsDialog()"
+          >
           </app-popup>
         </div>
 
-        <div *ngIf="message" class="text-green-600 font-medium">{{ message }}</div>
+        <div *ngIf="message" class="text-green-600 font-medium">
+          {{ message }}
+        </div>
 
         <app-task-menu
           #menu
@@ -39,40 +55,76 @@
           (convertToTask)="convertNoteToTask()"
           (openTags)="showTagsDialog()"
           (setDueDate)="setDueDate($event)"
-          (moveToList)="onMoveToList($event)">
+          (moveToList)="onMoveToList($event)"
+          (duplicateTask)="duplicateTask()"
+        >
         </app-task-menu>
 
-        <app-tags
-          [display]="showTags"
-          (tagsSelected)="updateTaskTags($event)">
+        <app-tags [display]="showTags" (tagsSelected)="updateTaskTags($event)">
         </app-tags>
 
         <!-- Tasks List -->
-        <ul *ngIf="!hasPinned" class="mt-2 text-black" cdkDropList [cdkDropListData]="unpinnedTasks" (cdkDropListDropped)="dropTask($event)">
+        <ul
+          *ngIf="!hasPinned"
+          class="mt-2 text-black"
+          cdkDropList
+          [cdkDropListData]="unpinnedTasks"
+          (cdkDropListDropped)="dropTask($event)"
+        >
           <li *ngFor="let task of unpinnedTasks" cdkDrag>
-            <ng-container *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: [task], parent: null }"></ng-container>
+            <ng-container
+              *ngTemplateOutlet="
+                recursiveSubtasks;
+                context: { $implicit: [task], parent: null }
+              "
+            ></ng-container>
           </li>
         </ul>
 
         <div *ngIf="hasPinned" class="flex flex-col gap-6 mt-6">
           <div *ngIf="pinnedTasks.length > 0">
-            <h2 class="text-lg font-semibold flex items-center gap-2 text-black">
+            <h2
+              class="text-lg font-semibold flex items-center gap-2 text-black"
+            >
               <i class="pi pi-thumbtack text-red-500"></i> Pinned Tasks
             </h2>
-            <ul *ngIf="pinnedTasks.length" class="mt-2 text-black" cdkDropList [cdkDropListData]="pinnedTasks" (cdkDropListDropped)="dropTask($event)">
+            <ul
+              *ngIf="pinnedTasks.length"
+              class="mt-2 text-black"
+              cdkDropList
+              [cdkDropListData]="pinnedTasks"
+              (cdkDropListDropped)="dropTask($event)"
+            >
               <li *ngFor="let task of pinnedTasks" cdkDrag>
-                <ng-container *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: [task], parent: null }"></ng-container>
+                <ng-container
+                  *ngTemplateOutlet="
+                    recursiveSubtasks;
+                    context: { $implicit: [task], parent: null }
+                  "
+                ></ng-container>
               </li>
             </ul>
           </div>
 
           <div *ngIf="unpinnedTasks.length > 0">
-            <h2 class="text-lg font-semibold flex items-center gap-2 text-black">
+            <h2
+              class="text-lg font-semibold flex items-center gap-2 text-black"
+            >
               <i class="pi pi-folder-open text-blue-500"></i> Unpinned Tasks
             </h2>
-            <ul class="mt-2" cdkDropList [cdkDropListData]="unpinnedTasks" (cdkDropListDropped)="dropTask($event)">
+            <ul
+              class="mt-2"
+              cdkDropList
+              [cdkDropListData]="unpinnedTasks"
+              (cdkDropListDropped)="dropTask($event)"
+            >
               <li *ngFor="let task of unpinnedTasks" cdkDrag>
-                <ng-container *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: [task], parent: null }"></ng-container>
+                <ng-container
+                  *ngTemplateOutlet="
+                    recursiveSubtasks;
+                    context: { $implicit: [task], parent: null }
+                  "
+                ></ng-container>
               </li>
             </ul>
           </div>
@@ -80,7 +132,11 @@
 
         <!-- Notes List -->
         <ul class="mt-2 text-black">
-          <li *ngFor="let note of notes" class="p-2 border-b border-gray-200 text-gray-700" (contextmenu)="onRightClick($event, menu['cm'], note, menu)">
+          <li
+            *ngFor="let note of notes"
+            class="p-2 border-b border-gray-200 text-gray-700"
+            (contextmenu)="onRightClick($event, menu['cm'], note, menu)"
+          >
             <i class="pi pi-file text-green-600"></i>
             {{ note.text }}
           </li>
@@ -89,60 +145,114 @@
 
       <!-- Recursive Subtasks -->
       <ng-template #recursiveSubtasks let-taskList let-parent="parent">
-        <li *ngFor="let task of taskList" class="flex flex-col gap-1 p-2 border-b border-gray-200" 
-            (contextmenu)="onRightClick($event, menu['cm'], task, menu)" 
-            (dblclick)="selectTask(task)">
+        <li
+          *ngFor="let task of taskList"
+          class="flex flex-col gap-1 p-2 border-b border-gray-200"
+          (contextmenu)="onRightClick($event, menu['cm'], task, menu)"
+          (dblclick)="selectTask(task)"
+        >
           <div class="flex items-center gap-2">
-            <p-checkbox [(ngModel)]="task.completed" (onChange)="completeTask(task, parent)" [binary]="true"></p-checkbox>
+            <p-checkbox
+              [(ngModel)]="task.completed"
+              (onChange)="completeTask(task, parent)"
+              [binary]="true"
+            ></p-checkbox>
 
             <!-- Editable Task Text -->
-            <input *ngIf="task === selectedTask"
-       [(ngModel)]="task.text"
-       (blur)="saveTasks()"
-       (keyup.enter)="onEnterSave($event)"
-       class="w-full bg-white border-none rounded p-1 focus:outline-none  caret-black"
-       [ngClass]="{
-         'text-red-500': task.priority === 'high',
-         'text-yellow-500': task.priority === 'medium',
-         'text-blue-500': task.priority === 'low',
-         'text-black': task.priority === 'none'
-       }" />
+            <input
+              *ngIf="task === selectedTask"
+              [(ngModel)]="task.text"
+              (blur)="saveTasks()"
+              (keyup.enter)="onEnterSave($event)"
+              class="w-full bg-white border-none rounded p-1 focus:outline-none caret-black"
+              [ngClass]="{
+                'text-red-500': task.priority === 'high',
+                'text-yellow-500': task.priority === 'medium',
+                'text-blue-500': task.priority === 'low',
+                'text-black': task.priority === 'none'
+              }"
+            />
 
-            <span *ngIf="task !== selectedTask"
-                  [class.text-red-500]="task.priority === 'high'"
-                  [class.text-yellow-500]="task.priority === 'medium'"
-                  [class.text-blue-500]="task.priority === 'low'"
-                  [class.text-black]="task.priority === 'none'">
+            <span
+              *ngIf="task !== selectedTask"
+              [class.text-red-500]="task.priority === 'high'"
+              [class.text-yellow-500]="task.priority === 'medium'"
+              [class.text-blue-500]="task.priority === 'low'"
+              [class.text-black]="task.priority === 'none'"
+            >
               {{ task.text }}
             </span>
 
-            <span *ngIf="task.dueDate" class="ml-auto text-sm text-gray-500">{{ getDisplayDate(task.dueDate) }}</span>
+            <span
+              *ngIf="task.dueDate"
+              class="ml-auto text-sm font-medium"
+              [ngClass]="{
+  'text-red-500': getDisplayDate(task.dueDate) === 'Today' || getDisplayDate(task.dueDate) === 'Yesterday',
+  'text-blue-500': getDisplayDate(task.dueDate) === 'Tomorrow',
+  'text-black':
+    getDisplayDate(task.dueDate) !== 'Today' &&
+    getDisplayDate(task.dueDate) !== 'Tomorrow' &&
+    getDisplayDate(task.dueDate) !== 'Yesterday'
+}"
+            >
+              {{ getDisplayDate(task.dueDate) }}
+            </span>
           </div>
 
           <div class="flex gap-1">
-            <span *ngFor="let tag of task.tags" class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full">{{ tag }}</span>
+            <span
+              *ngFor="let tag of task.tags"
+              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+              >{{ tag }}</span
+            >
           </div>
 
           <div *ngIf="task.showSubtaskInput" class="flex gap-2 mt-1">
-            <input type="text" pInputText placeholder="+ Add subtask" #subtaskInput class="w-full !bg-white !text-black p-1 border border-gray-300 rounded" (keyup.enter)="addSubtask(task, subtaskInput.value); subtaskInput.value=''" />
+            <input
+              type="text"
+              pInputText
+              placeholder="+ Add subtask"
+              #subtaskInput
+              class="w-full !bg-white !text-black p-1 border border-gray-300 rounded"
+              (keyup.enter)="
+                addSubtask(task, subtaskInput.value); subtaskInput.value = ''
+              "
+            />
           </div>
 
-          <ul *ngIf="task.subtasks?.length" cdkDropList [cdkDropListData]="task.subtasks" (cdkDropListDropped)="dropSubtask($event, task)" class="ml-6 mt-1">
-            <ng-container *ngTemplateOutlet="recursiveSubtasks; context: { $implicit: task.subtasks, parent: task }"></ng-container>
+          <ul
+            *ngIf="task.subtasks?.length"
+            cdkDropList
+            [cdkDropListData]="task.subtasks"
+            (cdkDropListDropped)="dropSubtask($event, task)"
+            class="ml-6 mt-1"
+          >
+            <ng-container
+              *ngTemplateOutlet="
+                recursiveSubtasks;
+                context: { $implicit: task.subtasks, parent: task }
+              "
+            ></ng-container>
           </ul>
         </li>
       </ng-template>
     </ng-template>
- 
+
     <!-- Right Panel -->
     <ng-template #panel>
-      <div class="p-3 text-black h-full bg-white flex flex-col ">
+      <div class="p-3 text-black h-full bg-white flex flex-col">
         <ng-container *ngIf="selectedTask; else noTask">
-          <div class="flex items-center gap-4 justify-start w-full">
-            <div class="flex items-center gap-4">
-              <p-checkbox [(ngModel)]="selectedTask.completed" (onChange)="toggleTaskCompletion(selectedTask)" [binary]="true" pTooltip="Checkbox" tooltipPosition="top"></p-checkbox>
+          <div class="flex items-center gap-1 justify-start w-full">
+            <div class="flex items-center gap-1">
+              <p-checkbox
+                [(ngModel)]="selectedTask.completed"
+                (onChange)="toggleTaskCompletion(selectedTask)"
+                [binary]="true"
+                pTooltip="Checkbox"
+                tooltipPosition="top"
+              ></p-checkbox>
 
-                <div class="mx-1 h-6 w-px bg-gray-400"></div>
+              <div class="mx-1 h-6 w-px bg-gray-400"></div>
 
               <p-datepicker
                 #dp
@@ -150,65 +260,126 @@
                 dateFormat="dd.mm.yy"
                 [showIcon]="false"
                 [readonlyInput]="true"
-                [inputStyle]="{ opacity: 0, width: '0px', border: 'none', padding: '0' }"
+                [inputStyle]="{
+                  opacity: 0,
+                  width: '0px',
+                  border: 'none',
+                  padding: '0'
+                }"
                 class="custom-datepicker"
-                (onSelect)="setDueDate($event)" 
+                (onSelect)="setDueDate($event)"
               ></p-datepicker>
-              <button type="button" (click)="dp.toggle()" class="flex items-center gap-2 text-black rounded-lg ">
-  <i class="pi pi-calendar" pTooltip="Set Due Date" tooltipPosition="top"></i>
-  <span *ngIf="date; else showText">{{ getDisplayDate(date) }}</span>
-  <ng-template #showText>Set Due Date</ng-template>
-</button>
-
+              <button
+                type="button"
+                (click)="dp.toggle()"
+                class="flex items-center gap-2 text-black rounded-lg"
+              >
+                <i
+                  class="pi pi-calendar"
+                  pTooltip="Set Due Date"
+                  tooltipPosition="top"
+                ></i>
+                <span
+                  *ngIf="date; else showText"
+                  class="font-medium"
+                  [ngClass]="{
+                    'text-red-500': getDisplayDate(date) === 'Today',
+                    'text-blue-500': getDisplayDate(date) === 'Tomorrow',
+                    'text-black':
+                      getDisplayDate(date) !== 'Today' &&
+                      getDisplayDate(date) !== 'Tomorrow'
+                  }"
+                >
+                  {{ getDisplayDate(date) }}
+                </span>
+                <ng-template #showText>Set Due Date</ng-template>
+              </button>
             </div>
 
-            <button type="button" (click)="cyclePriority()" class="flex items-center gap-2 px-3 py-2 rounded-lg pl-10 ml-auto">
-              <i class="pi pi-flag" [ngClass]="{
-                'text-red-500': selectedTask?.priority === 'high',
-                'text-yellow-500': selectedTask?.priority === 'medium',
-                'text-blue-500': selectedTask?.priority === 'low',
-                'text-gray-400': selectedTask?.priority === 'none'
-              }" pTooltip="Priority" tooltipPosition="top"></i>
+            <button
+              type="button"
+              (click)="cyclePriority()"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg pl-10 ml-auto"
+            >
+              <i
+                class="pi pi-flag"
+                [ngClass]="{
+                  'text-red-500': selectedTask?.priority === 'high',
+                  'text-yellow-500': selectedTask?.priority === 'medium',
+                  'text-blue-500': selectedTask?.priority === 'low',
+                  'text-gray-400': selectedTask?.priority === 'none'
+                }"
+                [pTooltip]="
+                  selectedTask ? (selectedTask.priority | titlecase) : 'None'
+                "
+                tooltipPosition="top"
+              ></i>
             </button>
           </div>
 
           <div class="border-b border-gray-400 mt-2"></div>
-          
+
           <!-- Task Text -->
-          <input *ngIf="selectedTask === selectedTask" [(ngModel)]="selectedTask.text" (blur)="saveTasks()" class="w-full p-2 text-xl font-semibold border-0 outline-none mt-2 text-black bg-white"/>
-          <span *ngIf="selectedTask !== selectedTask" (dblclick)="selectTask(selectedTask)" class="text-black text-xl font-semibold">{{selectedTask.text}}</span>
+          <input
+            *ngIf="selectedTask === selectedTask"
+            [(ngModel)]="selectedTask.text"
+            (blur)="saveTasks()"
+            class="w-full p-2 text-xl font-semibold border-0 outline-none mt-2 text-black bg-white"
+          />
+          <span
+            *ngIf="selectedTask !== selectedTask"
+            (dblclick)="selectTask(selectedTask)"
+            class="text-black text-xl font-semibold"
+            >{{ selectedTask.text }}</span
+          >
 
           <!-- Task Description -->
-          <textarea *ngIf="selectedTask === selectedTask" [(ngModel)]="selectedTask.description" (blur)="saveTasks()" rows="4" class="w-full p-2 border-none outline-none text-black bg-white mt-2" placeholder="Add Description"></textarea>
-          <span *ngIf="selectedTask !== selectedTask" (dblclick)="selectTask(selectedTask)" class="text-gray-700 block mt-2">{{selectedTask.description || 'No description'}}</span>
-
+          <textarea
+            *ngIf="selectedTask === selectedTask"
+            [(ngModel)]="selectedTask.description"
+            (blur)="saveTasks()"
+            rows="4"
+            class="w-full p-2 border-none outline-none text-black bg-white mt-2"
+            placeholder="Add Description"
+          ></textarea>
+          <span
+            *ngIf="selectedTask !== selectedTask"
+            (dblclick)="selectTask(selectedTask)"
+            class="text-gray-700 block mt-2"
+            >{{ selectedTask.description || "No description" }}</span
+          >
         </ng-container>
 
         <ng-template #noTask>
-          <p class="text-gray-500">Select a task from the left to view details</p>
+          <p class="text-gray-500">
+            Select a task from the left to view details
+          </p>
         </ng-template>
 
-         <div class="mt-auto flex justify-end">
-     <button (click)="rightMenu.open($event)" 
-        class="p-2 rounded-full hover:bg-gray-200">
-  <i class="pi pi-ellipsis-h text-gray-600 text-xl"></i>
-</button>
-<app-task-menu
-  #rightMenu
-  (pinTask)="pinTask()"
-  (deleteTask)="deleteSelectedTask()"
-  (setPriority)="setPriority($event)"
-  (addSubtask)="addSubtaskInput(selectedTask)"
-  (copyLink)="copyTaskLink()"
-  (convertToNote)="convertTaskToNote()"
-  (convertToTask)="convertNoteToTask()"
-  (openTags)="showTagsDialog()"
-  (setDueDate)="setDueDate($event)"
-  (moveToList)="onMoveToList($event)">
-</app-task-menu>
-    </div>
+        <div class="mt-auto flex justify-end">
+          <button
+            (click)="rightMenu.open($event)"
+            class="p-2 rounded-full hover:bg-gray-200"
+          >
+            <i class="pi pi-ellipsis-h text-gray-600 text-xl"></i>
+          </button>
+          <app-task-menu
+            #rightMenu
+            (pinTask)="pinTask()"
+            (deleteTask)="deleteSelectedTask()"
+            (setPriority)="setPriority($event)"
+            (addSubtask)="addSubtaskInput(selectedTask)"
+            (copyLink)="copyTaskLink()"
+            (convertToNote)="convertTaskToNote()"
+            (convertToTask)="convertNoteToTask()"
+            (openTags)="showTagsDialog()"
+            (setDueDate)="setDueDate($event)"
+            (moveToList)="onMoveToList($event)"
+            (duplicateTask)="duplicateTask()"
+          >
+          </app-task-menu>
+        </div>
       </div>
     </ng-template>
-
   </p-splitter>
 </div>

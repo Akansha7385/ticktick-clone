@@ -92,5 +92,9 @@ removeNewCategory(categoryConfig: any) {
     this.categoryListSubject.getValue().filter(c => c.id !== categoryId)
   );
 }
+getTaskById(id: string): Task | undefined {
+  return this.tasks.find(t => t.id === id);
+} 
+
 
 }

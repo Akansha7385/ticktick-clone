@@ -13,7 +13,7 @@ import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 export class TaskMenu {
   @ViewChild('cm') cm!: ContextMenu;
   @Output() deleteTask = new EventEmitter<void>();
-  @Output() setPriority = new EventEmitter<
+  @Output() setPriority = new EventEmitter< 
     'high' | 'medium' | 'low' | 'none'
   >();
   @Output() addSubtask = new EventEmitter<void>();
@@ -21,6 +21,7 @@ export class TaskMenu {
   @Output() convertToNote = new EventEmitter<void>();
   @Output() convertToTask = new EventEmitter<void>();
   @Output() openTags = new EventEmitter<void>();
+  @Output() duplicateTask = new EventEmitter<void>();
 @Output() setDueDate = new EventEmitter<Date>();
   @Output() pinTask = new EventEmitter<void>();
   @Output() moveToList = new EventEmitter<string>();
@@ -124,12 +125,13 @@ export class TaskMenu {
         icon: 'pi pi-tags',
         command: () => this.openTags.emit(),
       },
-      { label: 'Duplicate', icon: 'pi pi-copy' },
+      { label: 'Duplicate', icon: 'pi pi-copy',  command: () => this.duplicateTask.emit() },
       {
-        label: 'Copy Link',
-        icon: 'pi pi-link',
-        command: () => this.copyLink.emit(),
-      },
+  label: 'Copy Link',
+  icon: 'pi pi-link',
+  command: () => this.copyLink.emit(), 
+}
+,
 
       type === 'task'
         ? {
