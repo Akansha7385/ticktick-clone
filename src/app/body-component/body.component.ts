@@ -38,7 +38,9 @@ export interface Task {
   description?: string;
   categoryId?: number;
 }
-
+import { PanelModule } from 'primeng/panel';
+import { InplaceModule } from 'primeng/inplace';
+import { AutoFocusModule } from 'primeng/autofocus';
 @Component({
   selector: 'body-component',
   standalone: true,
@@ -48,7 +50,10 @@ export interface Task {
     FormsModule,
     Sidebar,
     CheckboxModule,
+    AutoFocusModule,
+    PanelModule,
     TaskMenu,
+    InplaceModule,
     CommonModule,
     Tags,
     SplitterModule,
@@ -66,6 +71,7 @@ export class BodyComponent {
   message: string = '';
   selectedTask: any = null;
   date: any = null;
+  sectionLabel:string=''
   sidebarVisible: boolean = false;
   tasks: Task[] = [];
   selectedCategoryDetails: any = {};
