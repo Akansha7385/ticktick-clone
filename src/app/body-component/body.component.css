@@ -16,3 +16,25 @@
   background-color: #dfe0e0 !important;
 }
 
+::ng-deep .p-inplace .p-inplace-display {
+  background-color: white !important; /* bg white */
+  color: black !important;            /* text black */
+  box-shadow: none !important;        /* hover shadow remove */
+}
+
+::ng-deep .p-inplace:hover .p-inplace-display {
+  background-color: white !important; /* hover bg remove */
+  color: black !important;            /* hover text color */
+  box-shadow: none !important;        /* hover shadow remove */
+}
+
+/* Scrollbar hide while keeping scroll functionality */
+.hide-scrollbar {
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; 
+}
+

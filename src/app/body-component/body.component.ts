@@ -38,9 +38,12 @@ export interface Task {
   description?: string;
   categoryId?: number;
 }
+
+
 import { PanelModule } from 'primeng/panel';
 import { InplaceModule } from 'primeng/inplace';
 import { AutoFocusModule } from 'primeng/autofocus';
+import { PriorityColorPipe } from '../priority-color-pipe';
 @Component({
   selector: 'body-component',
   standalone: true,
@@ -61,6 +64,7 @@ import { AutoFocusModule } from 'primeng/autofocus';
     DragDropModule,
     Popup,
     TooltipModule,
+    PriorityColorPipe
   ],
   templateUrl: './body.component.html',
   styleUrls: ['./body.component.css'],
@@ -83,11 +87,32 @@ export class BodyComponent {
   allowEditing = true;
   showTaskInput: boolean = false;
   sectionTasks: Task[] = [];
-  showSectionPanel: boolean = false;
+  sectionPanels: { label: string; tasks: Task[]; showTaskInput: boolean }[] = [];
+  panelCollapsed: boolean[] = [];
+  selectedTaskPanelIndex?: number;
 
-  addSectionFromPopup() {
-    this.showSectionPanel = true;
-  }
+
+  ngOnInit() {
+  this.sectionPanels.forEach(() => this.panelCollapsed.push(true)); // start collapsed
+}
+
+addSectionFromPopup() {
+  this.sectionPanels.push({
+    label: 'New Section',
+    tasks: [],  
+    showTaskInput: false,
+  });
+   this.saveSectionPanels();
+}
+
+
+saveSectionPanels() {
+  localStorage.setItem('sectionPanels', JSON.stringify(this.sectionPanels));
+}
+
+updatePanelLabel(panel: any) {
+  this.saveSectionPanels();
+}
 
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
@@ -98,27 +123,36 @@ export class BodyComponent {
   }
 
   constructor(
-    private TaskService: TaskService,
-    private CategoryService: CategoryService,
-    private router: Router
-  ) {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      this.allTasks = JSON.parse(savedTasks);
-      this.sectionTasks = this.allTasks.filter(
-        (t) => t.list === 'custom' && !t.completed
-      );
-      this.showSectionPanel = this.sectionTasks.length > 0;
-    }
-    this.CategoryService.selectedCategory.subscribe((id) => {
-      this.getTasksByCategoryId(id);
-    });
-
-    // Subscribe to category list updates
-    this.CategoryService.categoryListSubject.subscribe((cats) => {
-      this.customCategories = cats; // include all default + user-added
-    });
+  private TaskService: TaskService,
+  private CategoryService: CategoryService,
+  private router: Router
+) {
+  const savedTasks = localStorage.getItem('tasks');
+  if (savedTasks) {
+    this.allTasks = JSON.parse(savedTasks);
+    this.sectionTasks = this.allTasks.filter(
+      (t) => t.list === 'custom' && !t.completed
+    );
   }
+
+  // 👇 yeh add karo
+  const savedPanels = localStorage.getItem('sectionPanels');
+  if (savedPanels) {
+    this.sectionPanels = JSON.parse(savedPanels);
+  } else {
+    this.sectionPanels = [];
+  }
+
+  this.CategoryService.selectedCategory.subscribe((id) => {
+    this.getTasksByCategoryId(id);
+  });
+
+  // Subscribe to category list updates
+  this.CategoryService.categoryListSubject.subscribe((cats) => {
+    this.customCategories = cats; // include all default + user-added
+  });
+}
+
 
   //popup s priority update krne k lie
   onPrioritySelect(priority: 'high' | 'medium' | 'low' | 'none') {
@@ -258,32 +292,50 @@ export class BodyComponent {
     setTimeout(() => (this.message = ''), 2000);
   }
 
-  completeTask(task: Task, parentTask?: Task) {
-    task.completed = true;
-    this.message = `Task Completed: ${task.text}`;
+ completeTask(task: Task, panelIndex?: number, parentTask?: Task) {
+  task.completed = !task.completed; // toggle
 
-    // Only remove from current tasks if not viewing Completed category
-    if (this.selectedCategoryDetails.id !== 4) {
-      if (parentTask) {
-        parentTask.subtasks = parentTask.subtasks?.filter(
-          (sub) => sub.id !== task.id
-        );
-      } else {
-        this.tasks = this.tasks.filter((t) => t.id !== task.id);
-      }
+  // Remove task from current display if completed
+  if (task.completed) {
+    // Agar normal task hai
+    this.tasks = this.tasks.filter(t => t.id !== task.id);
+
+    // Agar section panel ka task hai
+    if (panelIndex !== undefined) {
+      this.sectionPanels[panelIndex].tasks = this.sectionPanels[panelIndex].tasks.filter(t => t.id !== task.id);
     }
 
-    this.saveTasks();
-    setTimeout(() => (this.message = ''), 2000);
+    this.message = `Task Completed: ${task.text}`;
+  } else {
+    // Incomplete hone pe dobara add karo
+    if (panelIndex !== undefined) {
+      this.sectionPanels[panelIndex].tasks.push(task);
+    } else {
+      this.tasks.push(task);
+    }
+    this.message = `Task marked as incomplete: ${task.text}`;
   }
 
+  // Update allTasks list
+  const idx = this.allTasks.findIndex(t => t.id === task.id);
+  if (idx > -1) this.allTasks[idx].completed = task.completed;
+
+  this.saveTasks();
+  setTimeout(() => (this.message = ''), 2000);
+}
+
+
+
   //task menu on rightclick
-  onRightClick(event: MouseEvent, cm: any, task: Task, menu: any) {
-    this.selectedTask = task;
-    menu.buildMenu(task.type ?? 'task');
-    cm.show(event);
-    event.preventDefault();
-  }
+  onRightClick(event: MouseEvent, cm: any, task: Task, menu: any, panelIndex?: number) {
+  this.selectedTask = task;
+  this.selectedTaskPanelIndex = panelIndex;
+  menu.buildMenu(task.type ?? 'task');
+  cm.show(event);
+  event.preventDefault();
+}
+
+
 
   //for deleting the tasks
   deleteSelectedTask() {
@@ -311,13 +363,24 @@ export class BodyComponent {
     }
   }
 
-  //for adding subtassk and showing input field
-  addSubtaskInput(task: Task) {
-    task.showSubtaskInput = true;
-  }
+ // Add subtask for both normal tasks and section panel tasks
+addSubtask(task: Task, subtaskText: string, panelIndex?: number) {
+  if (!subtaskText.trim()) return;
 
-  addSubtask(task: Task, subtaskText: string) {
-    if (!subtaskText.trim()) return;
+  if (panelIndex !== undefined) {
+    const panelTask = this.sectionPanels[panelIndex].tasks.find(t => t.id === task.id);
+    if (!panelTask) return;
+    if (!panelTask.subtasks) panelTask.subtasks = [];
+    panelTask.subtasks.push({
+      id: this.generateId(),
+      text: subtaskText.trim(),
+      completed: false,
+      priority: 'none',
+      subtasks: [],
+      type: 'task',
+    });
+    panelTask.showSubtaskInput = false;
+  } else {
     if (!task.subtasks) task.subtasks = [];
     task.subtasks.push({
       id: this.generateId(),
@@ -328,8 +391,24 @@ export class BodyComponent {
       type: 'task',
     });
     task.showSubtaskInput = false;
-    this.saveTasks();
   }
+
+  this.saveTasks();
+}
+
+
+
+// Show subtask input for section panel tasks
+addSubtaskInput(task: Task, panelIndex?: number) {
+  if (panelIndex !== undefined) {
+    const panelTask = this.sectionPanels[panelIndex].tasks.find(t => t.id === task.id);
+    if (panelTask) panelTask.showSubtaskInput = true;
+  } else {
+    task.showSubtaskInput = true;
+  }
+  this.saveTasks();
+}
+
 
   //copy task link
   copyTaskLink() {
@@ -382,6 +461,7 @@ export class BodyComponent {
 
   saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(this.allTasks));
+    localStorage.setItem('sectionPanels', JSON.stringify(this.sectionPanels)); 
   }
 
   showTagsDialog() {
@@ -596,32 +676,27 @@ export class BodyComponent {
     }
   }
 
-  addTaskToSection() {
-    if (!this.taskText.trim()) return;
+  addTaskToSection(panelIndex: number) {
+  if (!this.taskText.trim()) return;
 
-    const newTask: Task = {
-      id: this.generateId(),
-      text: this.taskText.trim(),
-      completed: false,
-      priority: 'none',
-      subtasks: [],
-      type: 'task',
-      pinned: false,
-      list: 'custom',
-      categoryId: this.selectedCategoryDetails.id,
-    };
+  const newTask: Task = {
+    id: this.generateId(),
+    text: this.taskText.trim(),
+    completed: false,
+    priority: 'none',
+    subtasks: [],
+    type: 'task',
+    pinned: false,
+    list: 'custom',
+    categoryId: this.selectedCategoryDetails.id,
+  };
 
-    // Add to both sectionTasks and allTasks
-    this.sectionTasks.push(newTask);
-    this.allTasks.push(newTask);
+  this.sectionPanels[panelIndex].tasks.push(newTask); // Add to correct panel
+  this.allTasks.push(newTask);
+   this.saveTasks();
+  this.taskText = '';
 
-    // Set as selectedTask so all features work
-    this.selectedTask = newTask;
+}
 
-    // Save all tasks to localStorage
-    this.saveTasks();
-
-    this.taskText = '';
-    this.showTaskInput = false;
-  }
+  
 }
