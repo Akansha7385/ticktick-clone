@@ -49,7 +49,7 @@ categoryList:any=[];
     const menu = this.categoryMenus.find(m => m.category.id === category.id);
     if (menu) {
       menu.toggle(event);
-    }
+    } 
   }
 
 handleDeleteCategory(categoryId: number) {

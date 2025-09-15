@@ -44,6 +44,7 @@ import { PanelModule } from 'primeng/panel';
 import { InplaceModule } from 'primeng/inplace';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { PriorityColorPipe } from '../priority-color-pipe';
+import { CategoryMenu } from '../category-menu/category-menu';
 @Component({
   selector: 'body-component',
   standalone: true,
@@ -64,7 +65,8 @@ import { PriorityColorPipe } from '../priority-color-pipe';
     DragDropModule,
     Popup,
     TooltipModule,
-    PriorityColorPipe
+    PriorityColorPipe,
+    CategoryMenu
   ],
   templateUrl: './body.component.html',
   styleUrls: ['./body.component.css'],
@@ -292,35 +294,27 @@ updatePanelLabel(panel: any) {
     setTimeout(() => (this.message = ''), 2000);
   }
 
- completeTask(task: Task, panelIndex?: number, parentTask?: Task) {
-  task.completed = !task.completed; // toggle
+completeTask(task: Task, panelIndex?: number, parentTask?: Task) {
+  task.completed = true;
+  this.message = `Task Completed: ${task.text}`;
 
-  // Remove task from current display if completed
-  if (task.completed) {
-    // Agar normal task hai
-    this.tasks = this.tasks.filter(t => t.id !== task.id);
-
-    // Agar section panel ka task hai
-    if (panelIndex !== undefined) {
+  // Agar Completed category me nahi hai, to remove karo
+  if (this.selectedCategoryDetails.id !== 4) {
+    if (parentTask) {
+      // Subtask remove
+      parentTask.subtasks = parentTask.subtasks?.filter(sub => sub.id !== task.id);
+    } else if (panelIndex !== undefined) {
+      // Section panel task remove
       this.sectionPanels[panelIndex].tasks = this.sectionPanels[panelIndex].tasks.filter(t => t.id !== task.id);
-    }
-
-    this.message = `Task Completed: ${task.text}`;
-  } else {
-    // Incomplete hone pe dobara add karo
-    if (panelIndex !== undefined) {
-      this.sectionPanels[panelIndex].tasks.push(task);
     } else {
-      this.tasks.push(task);
+      // Normal tasks remove
+      this.tasks = this.tasks.filter(t => t.id !== task.id);
     }
-    this.message = `Task marked as incomplete: ${task.text}`;
   }
 
-  // Update allTasks list
-  const idx = this.allTasks.findIndex(t => t.id === task.id);
-  if (idx > -1) this.allTasks[idx].completed = task.completed;
-
   this.saveTasks();
+
+  // Message 2s ke liye show kare
   setTimeout(() => (this.message = ''), 2000);
 }
 

@@ -97,6 +97,7 @@
                     (click)="updatePanelLabel(panel); closeCallback()"
                   >
                     <i class="pi pi-arrow-right-arrow-left ml-1 !text-black"></i>
+                     <i class="pi pi-ellipsis-h"></i>
                   </button>
                 </span>
               </ng-template>
@@ -143,6 +144,8 @@
               [(ngModel)]="task.completed"
               (onChange)="completeTask(task, i)"
               [binary]="true"
+               pTooltip="Checkbox"
+                tooltipPosition="top"
             ></p-checkbox>
 
             <!-- Task Text -->
@@ -181,7 +184,7 @@
 
 <ul *ngIf="task.subtasks?.length" class="ml-6 mt-1">
   <li *ngFor="let sub of task.subtasks" class="flex items-center gap-2 !text-black">
-    <p-checkbox [(ngModel)]="sub.completed" (onChange)="completeTask(sub, i, task)" [binary]="true"></p-checkbox>
+    <p-checkbox [(ngModel)]="sub.completed" (onChange)="completeTask(sub, i, task)" [binary]="true"  pTooltip="Checkbox" tooltipPosition="top"></p-checkbox>
     <span>{{ sub.text }}</span>
   </li>
 </ul>
@@ -284,11 +287,8 @@
           (dblclick)="selectTask(task)"
         >
           <div class="flex items-center gap-2">
-            <p-checkbox
-              [(ngModel)]="task.completed"
-              (onChange)="completeTask(task, parent)"
-              [binary]="true"
-            ></p-checkbox>
+           <p-checkbox [(ngModel)]="task.completed" (onChange)="completeTask(task, parent ? parent.id : undefined, parent)" [binary]="true"  pTooltip="Checkbox" tooltipPosition="top"></p-checkbox>
+
 
             <!-- Editable Task Text -->
             <input
