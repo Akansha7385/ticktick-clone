@@ -16,6 +16,7 @@
     @Output() prioritySelected = new EventEmitter<'high' | 'medium' | 'low' | 'none'>();
     @Output() categorySelected = new EventEmitter<number>(); // ID of category
     @Output() openTags = new EventEmitter<void>();
+    @Output() sectionAdded = new EventEmitter<void>();
 
     items: MenuItem[] = [];
 
@@ -72,7 +73,7 @@ const categoryItems = [
           label: 'Section',
           icon: 'pi pi-plus',
           items: [
-            { label: 'Add Section', command: () => this.openTags.emit() }
+            { label: 'Add Section', command: () => this.sectionAdded.emit() }
           ]
         },
       ];

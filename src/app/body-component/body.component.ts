@@ -71,7 +71,7 @@ export class BodyComponent {
   message: string = '';
   selectedTask: any = null;
   date: any = null;
-  sectionLabel:string=''
+  sectionLabel: string = '';
   sidebarVisible: boolean = false;
   tasks: Task[] = [];
   selectedCategoryDetails: any = {};
@@ -81,9 +81,20 @@ export class BodyComponent {
   allowAddTask = true;
   allowPriorityFeature = true;
   allowEditing = true;
+  showTaskInput: boolean = false;
+  sectionTasks: Task[] = [];
+  showSectionPanel: boolean = false;
+
+  addSectionFromPopup() {
+    this.showSectionPanel = true;
+  }
 
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
+  }
+
+  toggleTaskInput() {
+    this.showTaskInput = !this.showTaskInput;
   }
 
   constructor(
@@ -94,6 +105,10 @@ export class BodyComponent {
     const savedTasks = localStorage.getItem('tasks');
     if (savedTasks) {
       this.allTasks = JSON.parse(savedTasks);
+      this.sectionTasks = this.allTasks.filter(
+        (t) => t.list === 'custom' && !t.completed
+      );
+      this.showSectionPanel = this.sectionTasks.length > 0;
     }
     this.CategoryService.selectedCategory.subscribe((id) => {
       this.getTasksByCategoryId(id);
@@ -243,23 +258,24 @@ export class BodyComponent {
     setTimeout(() => (this.message = ''), 2000);
   }
 
- completeTask(task: Task, parentTask?: Task) {
-  task.completed = true;
-  this.message = `Task Completed: ${task.text}`;
+  completeTask(task: Task, parentTask?: Task) {
+    task.completed = true;
+    this.message = `Task Completed: ${task.text}`;
 
-  // Only remove from current tasks if not viewing Completed category
-  if (this.selectedCategoryDetails.id !== 4) {
-    if (parentTask) {
-      parentTask.subtasks = parentTask.subtasks?.filter(sub => sub.id !== task.id);
-    } else {
-      this.tasks = this.tasks.filter(t => t.id !== task.id);
+    // Only remove from current tasks if not viewing Completed category
+    if (this.selectedCategoryDetails.id !== 4) {
+      if (parentTask) {
+        parentTask.subtasks = parentTask.subtasks?.filter(
+          (sub) => sub.id !== task.id
+        );
+      } else {
+        this.tasks = this.tasks.filter((t) => t.id !== task.id);
+      }
     }
+
+    this.saveTasks();
+    setTimeout(() => (this.message = ''), 2000);
   }
-
-  this.saveTasks();
-  setTimeout(() => (this.message = ''), 2000);
-}
-
 
   //task menu on rightclick
   onRightClick(event: MouseEvent, cm: any, task: Task, menu: any) {
@@ -316,17 +332,18 @@ export class BodyComponent {
   }
 
   //copy task link
-    copyTaskLink() {
-  if (!this.selectedTask) return;
+  copyTaskLink() {
+    if (!this.selectedTask) return;
 
-  const url = this.router.serializeUrl(
-    this.router.createUrlTree(['/task', this.selectedTask.id])
-  );
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/task', this.selectedTask.id])
+    );
 
-  navigator.clipboard.writeText(`${window.location.origin}${url}`)
-    .then(() => alert('Task link copied!'))
-    .catch(err => console.error('Failed to copy link:', err));
-}
+    navigator.clipboard
+      .writeText(`${window.location.origin}${url}`)
+      .then(() => alert('Task link copied!'))
+      .catch((err) => console.error('Failed to copy link:', err));
+  }
 
   //convert task to notes
   convertTaskToNote() {
@@ -451,10 +468,10 @@ export class BodyComponent {
     }
 
     this.message = task.completed
-    ? `Task Completed: ${task.text}`
-    : `Task marked as incomplete: ${task.text}`;
+      ? `Task Completed: ${task.text}`
+      : `Task marked as incomplete: ${task.text}`;
 
-  setTimeout(() => (this.message = ''), 2000);
+    setTimeout(() => (this.message = ''), 2000);
   }
 
   //display date
@@ -546,7 +563,7 @@ export class BodyComponent {
     }
   }
   selectTask(task: Task) {
-    // find the actual task in allTasks by ID
+    // find original task in allTasks
     const originalTask = this.allTasks.find((t) => t.id === task.id);
     if (originalTask) {
       this.selectedTask = originalTask;
@@ -577,5 +594,34 @@ export class BodyComponent {
       this.selectedCategory =
         (this.selectedCategoryDetails?.name?.toLowerCase() as any) || 'inbox';
     }
+  }
+
+  addTaskToSection() {
+    if (!this.taskText.trim()) return;
+
+    const newTask: Task = {
+      id: this.generateId(),
+      text: this.taskText.trim(),
+      completed: false,
+      priority: 'none',
+      subtasks: [],
+      type: 'task',
+      pinned: false,
+      list: 'custom',
+      categoryId: this.selectedCategoryDetails.id,
+    };
+
+    // Add to both sectionTasks and allTasks
+    this.sectionTasks.push(newTask);
+    this.allTasks.push(newTask);
+
+    // Set as selectedTask so all features work
+    this.selectedTask = newTask;
+
+    // Save all tasks to localStorage
+    this.saveTasks();
+
+    this.taskText = '';
+    this.showTaskInput = false;
   }
 }
