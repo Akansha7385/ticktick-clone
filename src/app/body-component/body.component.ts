@@ -562,6 +562,7 @@ export class BodyComponent {
     if (!selectedDate) return '';
 
     const dateObj = new Date(selectedDate);
+     dateObj.setHours(0, 0, 0, 0);
     const today = new Date();
     const tomorrow = new Date();
     const yesterday = new Date();
@@ -692,6 +693,7 @@ export class BodyComponent {
       pinned: false,
       list: 'custom',
       categoryId: this.selectedCategoryDetails.id,
+      dueDate: null,
     };
 
     this.sectionPanels[panelIndex].tasks.push(newTask); // Add to correct panel
@@ -699,4 +701,5 @@ export class BodyComponent {
     this.saveTasks();
     this.taskText = '';
   }
+  
 }

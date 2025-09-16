@@ -109,7 +109,6 @@
                             <i
                               class="pi pi-arrow-right-arrow-left ml-1 !text-black"
                             ></i>
-                            <i class="pi pi-ellipsis-h"></i>
                           </button>
                         </span>
                       </ng-template>
@@ -212,6 +211,10 @@
                   <li
                     *ngFor="let sub of task.subtasks"
                     class="flex items-center gap-2 !text-black"
+                    (click)="selectTask(task)"
+                      (contextmenu)="
+                      onRightClick($event, menu['cm'], task, menu, i)
+                    "
                   >
                     <p-checkbox
                       [(ngModel)]="sub.completed"
@@ -221,6 +224,23 @@
                       tooltipPosition="top"
                     ></p-checkbox>
                     <span>{{ sub.text }}</span>
+                    <span
+                      *ngIf="task.dueDate"
+                      class="ml-auto text-sm font-medium"
+                      [ngClass]="{
+                        'text-red-500':
+                          getDisplayDate(task.dueDate) === 'Today' ||
+                          getDisplayDate(task.dueDate) === 'Yesterday',
+                        'text-blue-500':
+                          getDisplayDate(task.dueDate) === 'Tomorrow',
+                        'text-black':
+                          getDisplayDate(task.dueDate) !== 'Today' &&
+                          getDisplayDate(task.dueDate) !== 'Tomorrow' &&
+                          getDisplayDate(task.dueDate) !== 'Yesterday'
+                      }"
+                    >
+                      {{ getDisplayDate(task.dueDate) }}
+                    </span>
                   </li>
                 </ul>
               </div>
