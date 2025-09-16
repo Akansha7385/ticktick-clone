@@ -39,7 +39,6 @@ export interface Task {
   categoryId?: number;
 }
 
-
 import { PanelModule } from 'primeng/panel';
 import { InplaceModule } from 'primeng/inplace';
 import { AutoFocusModule } from 'primeng/autofocus';
@@ -66,95 +65,95 @@ import { CategoryMenu } from '../category-menu/category-menu';
     Popup,
     TooltipModule,
     PriorityColorPipe,
-    CategoryMenu
   ],
   templateUrl: './body.component.html',
   styleUrls: ['./body.component.css'],
 })
 export class BodyComponent {
-  taskText: string = '';
-  allTasks: Task[] = [];
-  message: string = '';
-  selectedTask: any = null;
-  date: any = null;
-  sectionLabel: string = '';
-  sidebarVisible: boolean = false;
-  tasks: Task[] = [];
-  selectedCategoryDetails: any = {};
-  selectedPriority: 'high' | 'medium' | 'low' | 'none' = 'none';
-  selectedCategory: 'inbox' | 'today' | 'next7Days' = 'inbox';
-  showTags = false;
+  taskText: string = ''; //jo input box me type hota hai.
+  allTasks: Task[] = []; //sabhi tasks ka master array (localStorage me save).
+  message: string = ''; //ui message
+  selectedTask: any = null;//currently selected task
+  date: any = null;//datepicker binding value. 
+  sectionLabel: string = ''; //temp label
+  sidebarVisible: boolean = false; //open/close flag.
+  tasks: Task[] = []; //current displayed tasks
+  selectedCategoryDetails: any = {}; //detail for current category
+  selectedPriority: 'high' | 'medium' | 'low' | 'none' = 'none';//selected priority
+  selectedCategory: 'inbox' | 'today' | 'next7Days' = 'inbox';//selected category
+  showTags = false;//falg
   allowAddTask = true;
   allowPriorityFeature = true;
   allowEditing = true;
   showTaskInput: boolean = false;
-  sectionTasks: Task[] = [];
-  sectionPanels: { label: string; tasks: Task[]; showTaskInput: boolean }[] = [];
-  panelCollapsed: boolean[] = [];
+  sectionTasks: Task[] = [];//section tasks
+  sectionPanels: { label: string; tasks: Task[]; showTaskInput: boolean }[] = []; 
+  panelCollapsed: boolean[] = []; 
   selectedTaskPanelIndex?: number;
 
-
   ngOnInit() {
-  this.sectionPanels.forEach(() => this.panelCollapsed.push(true)); // start collapsed
-}
+    this.sectionPanels.forEach(() => this.panelCollapsed.push(true)); // start collapsed
+  }
 
-addSectionFromPopup() {
-  this.sectionPanels.push({
-    label: 'New Section',
-    tasks: [],  
-    showTaskInput: false,
-  });
-   this.saveSectionPanels();
-}
+  //new section add karne ka method
+  addSectionFromPopup() {
+    this.sectionPanels.push({
+      label: '',
+      tasks: [],
+      showTaskInput: false,
+    });
+    this.saveSectionPanels();
+  }
 
+  //localStorage me save krne ka method
+  saveSectionPanels() {
+    localStorage.setItem('sectionPanels', JSON.stringify(this.sectionPanels));
+  }
 
-saveSectionPanels() {
-  localStorage.setItem('sectionPanels', JSON.stringify(this.sectionPanels));
-}
+  //update panel label
+  updatePanelLabel(panel: any) {
+    this.saveSectionPanels();
+  }
 
-updatePanelLabel(panel: any) {
-  this.saveSectionPanels();
-}
-
+  //sidebar input show/hide toggle.
   toggleSidebar() {
     this.sidebarVisible = !this.sidebarVisible;
   }
 
+  //add task input show/hide toggle.
   toggleTaskInput() {
     this.showTaskInput = !this.showTaskInput;
   }
 
   constructor(
-  private TaskService: TaskService,
-  private CategoryService: CategoryService,
-  private router: Router
-) {
-  const savedTasks = localStorage.getItem('tasks');
-  if (savedTasks) {
-    this.allTasks = JSON.parse(savedTasks);
-    this.sectionTasks = this.allTasks.filter(
-      (t) => t.list === 'custom' && !t.completed
-    );
+    private TaskService: TaskService,
+    private CategoryService: CategoryService,
+    private router: Router
+  ) {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+      this.allTasks = JSON.parse(savedTasks);
+      this.sectionTasks = this.allTasks.filter(
+        (t) => t.list === 'custom' && !t.completed
+      );
+    }
+
+    const savedPanels = localStorage.getItem('sectionPanels');
+    if (savedPanels) {
+      this.sectionPanels = JSON.parse(savedPanels);
+    } else {
+      this.sectionPanels = [];
+    }
+
+    this.CategoryService.selectedCategory.subscribe((id) => {
+      this.getTasksByCategoryId(id);
+    });
+
+    // Subscribe to category list updates
+    this.CategoryService.categoryListSubject.subscribe((cats) => {
+      this.customCategories = cats;
+    });
   }
-
-  // 👇 yeh add karo
-  const savedPanels = localStorage.getItem('sectionPanels');
-  if (savedPanels) {
-    this.sectionPanels = JSON.parse(savedPanels);
-  } else {
-    this.sectionPanels = [];
-  }
-
-  this.CategoryService.selectedCategory.subscribe((id) => {
-    this.getTasksByCategoryId(id);
-  });
-
-  // Subscribe to category list updates
-  this.CategoryService.categoryListSubject.subscribe((cats) => {
-    this.customCategories = cats; // include all default + user-added
-  });
-}
-
 
   //popup s priority update krne k lie
   onPrioritySelect(priority: 'high' | 'medium' | 'low' | 'none') {
@@ -215,6 +214,7 @@ updatePanelLabel(panel: any) {
     return Math.random().toString(36).substring(2, 9);
   }
 
+  //invalid text 
   addTask() {
     const invalidPattern = /[^a-zA-Z0-9\s]/; // sirf letters, numbers aur spaces allow
 
@@ -228,6 +228,7 @@ updatePanelLabel(panel: any) {
       return;
     }
 
+
     const newTask: Task = {
       id: this.generateId(),
       text: this.taskText.trim(),
@@ -240,7 +241,7 @@ updatePanelLabel(panel: any) {
       categoryId: this.selectedCategoryDetails.id,
     };
 
-    // Due date / category logic wahi rahega
+    // Due date 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -294,42 +295,49 @@ updatePanelLabel(panel: any) {
     setTimeout(() => (this.message = ''), 2000);
   }
 
-completeTask(task: Task, panelIndex?: number, parentTask?: Task) {
-  task.completed = true;
-  this.message = `Task Completed: ${task.text}`;
+  //markin task completed
+  completeTask(task: Task, panelIndex?: number, parentTask?: Task) {
+    task.completed = true;
+    this.message = `Task Completed: ${task.text}`;
 
-  // Agar Completed category me nahi hai, to remove karo
-  if (this.selectedCategoryDetails.id !== 4) {
-    if (parentTask) {
-      // Subtask remove
-      parentTask.subtasks = parentTask.subtasks?.filter(sub => sub.id !== task.id);
-    } else if (panelIndex !== undefined) {
-      // Section panel task remove
-      this.sectionPanels[panelIndex].tasks = this.sectionPanels[panelIndex].tasks.filter(t => t.id !== task.id);
-    } else {
-      // Normal tasks remove
-      this.tasks = this.tasks.filter(t => t.id !== task.id);
+    // Agar Completed category me nahi hai, to remove karo
+    if (this.selectedCategoryDetails.id !== 4) {
+      if (parentTask) {
+        // Subtask remove
+        parentTask.subtasks = parentTask.subtasks?.filter(
+          (sub) => sub.id !== task.id
+        );
+      } else if (panelIndex !== undefined) {
+        // Section panel task remove
+        this.sectionPanels[panelIndex].tasks = this.sectionPanels[
+          panelIndex
+        ].tasks.filter((t) => t.id !== task.id);
+      } else {
+        // Normal tasks remove
+        this.tasks = this.tasks.filter((t) => t.id !== task.id);
+      }
     }
+
+    this.saveTasks();
+
+    // Message 2s ke liye show kare
+    setTimeout(() => (this.message = ''), 2000);
   }
 
-  this.saveTasks();
-
-  // Message 2s ke liye show kare
-  setTimeout(() => (this.message = ''), 2000);
-}
-
-
-
   //task menu on rightclick
-  onRightClick(event: MouseEvent, cm: any, task: Task, menu: any, panelIndex?: number) {
-  this.selectedTask = task;
-  this.selectedTaskPanelIndex = panelIndex;
-  menu.buildMenu(task.type ?? 'task');
-  cm.show(event);
-  event.preventDefault();
-}
-
-
+  onRightClick(
+    event: MouseEvent,
+    cm: any,
+    task: Task,
+    menu: any,
+    panelIndex?: number
+  ) {
+    this.selectedTask = task;
+    this.selectedTaskPanelIndex = panelIndex;
+    menu.buildMenu(task.type ?? 'task');
+    cm.show(event);
+    event.preventDefault();
+  }
 
   //for deleting the tasks
   deleteSelectedTask() {
@@ -357,52 +365,53 @@ completeTask(task: Task, panelIndex?: number, parentTask?: Task) {
     }
   }
 
- // Add subtask for both normal tasks and section panel tasks
-addSubtask(task: Task, subtaskText: string, panelIndex?: number) {
-  if (!subtaskText.trim()) return;
+  // Add subtask for both normal tasks and section panel tasks
+  addSubtask(task: Task, subtaskText: string, panelIndex?: number) {
+    if (!subtaskText.trim()) return;
 
-  if (panelIndex !== undefined) {
-    const panelTask = this.sectionPanels[panelIndex].tasks.find(t => t.id === task.id);
-    if (!panelTask) return;
-    if (!panelTask.subtasks) panelTask.subtasks = [];
-    panelTask.subtasks.push({
-      id: this.generateId(),
-      text: subtaskText.trim(),
-      completed: false,
-      priority: 'none',
-      subtasks: [],
-      type: 'task',
-    });
-    panelTask.showSubtaskInput = false;
-  } else {
-    if (!task.subtasks) task.subtasks = [];
-    task.subtasks.push({
-      id: this.generateId(),
-      text: subtaskText.trim(),
-      completed: false,
-      priority: 'none',
-      subtasks: [],
-      type: 'task',
-    });
-    task.showSubtaskInput = false;
+    if (panelIndex !== undefined) {
+      const panelTask = this.sectionPanels[panelIndex].tasks.find(
+        (t) => t.id === task.id
+      );
+      if (!panelTask) return;
+      if (!panelTask.subtasks) panelTask.subtasks = [];
+      panelTask.subtasks.push({
+        id: this.generateId(),
+        text: subtaskText.trim(),
+        completed: false,
+        priority: 'none',
+        subtasks: [],
+        type: 'task',
+      });
+      panelTask.showSubtaskInput = false;
+    } else {
+      if (!task.subtasks) task.subtasks = [];
+      task.subtasks.push({
+        id: this.generateId(),
+        text: subtaskText.trim(),
+        completed: false,
+        priority: 'none',
+        subtasks: [],
+        type: 'task',
+      });
+      task.showSubtaskInput = false;
+    }
+
+    this.saveTasks();
   }
 
-  this.saveTasks();
-}
-
-
-
-// Show subtask input for section panel tasks
-addSubtaskInput(task: Task, panelIndex?: number) {
-  if (panelIndex !== undefined) {
-    const panelTask = this.sectionPanels[panelIndex].tasks.find(t => t.id === task.id);
-    if (panelTask) panelTask.showSubtaskInput = true;
-  } else {
-    task.showSubtaskInput = true;
+  // Show subtask input for section panel tasks
+  addSubtaskInput(task: Task, panelIndex?: number) {
+    if (panelIndex !== undefined) {
+      const panelTask = this.sectionPanels[panelIndex].tasks.find(
+        (t) => t.id === task.id
+      );
+      if (panelTask) panelTask.showSubtaskInput = true;
+    } else {
+      task.showSubtaskInput = true;
+    }
+    this.saveTasks();
   }
-  this.saveTasks();
-}
-
 
   //copy task link
   copyTaskLink() {
@@ -455,7 +464,7 @@ addSubtaskInput(task: Task, panelIndex?: number) {
 
   saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(this.allTasks));
-    localStorage.setItem('sectionPanels', JSON.stringify(this.sectionPanels)); 
+    localStorage.setItem('sectionPanels', JSON.stringify(this.sectionPanels));
   }
 
   showTagsDialog() {
@@ -671,26 +680,23 @@ addSubtaskInput(task: Task, panelIndex?: number) {
   }
 
   addTaskToSection(panelIndex: number) {
-  if (!this.taskText.trim()) return;
+    if (!this.taskText.trim()) return;
 
-  const newTask: Task = {
-    id: this.generateId(),
-    text: this.taskText.trim(),
-    completed: false,
-    priority: 'none',
-    subtasks: [],
-    type: 'task',
-    pinned: false,
-    list: 'custom',
-    categoryId: this.selectedCategoryDetails.id,
-  };
+    const newTask: Task = {
+      id: this.generateId(),
+      text: this.taskText.trim(),
+      completed: false,
+      priority: 'none',
+      subtasks: [],
+      type: 'task',
+      pinned: false,
+      list: 'custom',
+      categoryId: this.selectedCategoryDetails.id,
+    };
 
-  this.sectionPanels[panelIndex].tasks.push(newTask); // Add to correct panel
-  this.allTasks.push(newTask);
-   this.saveTasks();
-  this.taskText = '';
-
-}
-
-  
+    this.sectionPanels[panelIndex].tasks.push(newTask); // Add to correct panel
+    this.allTasks.push(newTask);
+    this.saveTasks();
+    this.taskText = '';
+  }
 }
