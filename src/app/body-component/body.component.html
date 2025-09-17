@@ -60,6 +60,7 @@
           (setDueDate)="setDueDate($event)"
           (moveToList)="onMoveToList($event)"
           (duplicateTask)="duplicateTask()"
+          
         >
         </app-task-menu>
 
@@ -156,6 +157,7 @@
                       onRightClick($event, menu['cm'], task, menu, i)
                     "
                   >
+                  
                     <!-- Checkbox -->
                     <p-checkbox
                       *ngIf="task.type === 'task'"
@@ -314,6 +316,7 @@
                   </li>
                 </ul>
               </div>
+              
             </p-panel>
           </ng-container>
         </div>

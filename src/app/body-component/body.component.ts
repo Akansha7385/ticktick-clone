@@ -351,21 +351,38 @@ export class BodyComponent {
 
   //for deleting the tasks
   deleteSelectedTask() {
-    if (!this.selectedTask) return;
-    this.removeTask(this.tasks, this.selectedTask);
-    this.saveTasks();
-  }
+  if (!this.selectedTask) return;
 
-  private removeTask(list: Task[], taskToRemove: Task) {
-    const index = list.indexOf(taskToRemove);
-    if (index > -1) {
-      list.splice(index, 1);
-    } else {
-      for (let t of list) {
-        if (t.subtasks) this.removeTask(t.subtasks, taskToRemove);
-      }
+  // Normal tasks
+  this.removeTask(this.tasks, this.selectedTask);
+
+  // Panel tasks
+  this.sectionPanels.forEach(panel => {
+    this.removeTask(panel.tasks, this.selectedTask);
+  });
+
+  // Unpinned / Pinned tasks
+  this.removeTask(this.unpinnedTasks, this.selectedTask);
+  this.removeTask(this.pinnedTasks, this.selectedTask);
+
+  // Notes
+  this.removeTask(this.notes, this.selectedTask);
+
+  this.selectedTask = null;
+  this.saveTasks();
+}
+
+private removeTask(list: Task[], taskToRemove: Task) {
+  const index = list.indexOf(taskToRemove);
+  if (index > -1) {
+    list.splice(index, 1);
+  } else {
+    for (let t of list) {
+      if (t.subtasks) this.removeTask(t.subtasks, taskToRemove);
     }
   }
+}
+
 
   //for setting priority
   setPriority(priority: 'high' | 'medium' | 'low' | 'none') {

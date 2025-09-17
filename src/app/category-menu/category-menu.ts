@@ -13,24 +13,18 @@ export class CategoryMenu implements OnChanges {
   @ViewChild('menu') menu!: Menu;
   @Input() category: any; // current category
   @Output() deleteCategory = new EventEmitter<number>();
-  @Output() pinAllTasks = new EventEmitter<number>();
 
   items: MenuItem[] = [];
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['category'] && this.category) {
       this.items = [
-        // {
-        //   label: 'Pin All Tasks',
-        //   icon: 'pi pi-thumbtack',
-        //   command: () => this.pinAllTasks.emit(this.category.id)
-        // },
         {
           label: 'Delete',
           icon: 'pi pi-trash',
           command: () => this.deleteCategory.emit(this.category.id)
         }
-      ];
+      ]; 
     }
   }
 
