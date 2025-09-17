@@ -780,6 +780,10 @@ updateTask(task: Task) {
   // changes ko localStorage me save karo
   this.saveTasks();
 }
+deletePanel(index: number) {
+  this.sectionPanels.splice(index, 1);
+   this.saveSectionPanels();
+}
 
   
 }
