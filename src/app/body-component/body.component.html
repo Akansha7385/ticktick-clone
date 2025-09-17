@@ -164,10 +164,21 @@
                       pTooltip="Checkbox"
                       tooltipPosition="top"
                     ></p-checkbox>
-
                     <!-- Task Text -->
-                    <span class="ml-2 flex-1">{{ task.text }}</span>
-
+                    <p-inplace [active]="false" [closable]="false">
+    <ng-template #display>
+      <span>{{ task.text }}</span>
+    </ng-template>
+    <ng-template #content let-closeCallback="closeCallback">
+      <input
+        type="text"
+        [(ngModel)]="task.text"
+        [pAutoFocus]="true"
+        (keyup.enter)="saveTasks(); closeCallback()"
+        class="w-full"
+      />
+    </ng-template>
+  </p-inplace>
                     <!-- Task Priority / Due Date -->
                     <span
                       *ngIf="task.dueDate"
@@ -211,9 +222,9 @@
                   <li
                     *ngFor="let sub of task.subtasks"
                     class="flex items-center gap-2 !text-black"
-                    (click)="selectTask(task)"
-                      (contextmenu)="
-                      onRightClick($event, menu['cm'], task, menu, i)
+                    (click)="selectTask(sub)"
+                    (contextmenu)="
+                      onRightClick($event, menu['cm'], sub, menu, i)
                     "
                   >
                     <p-checkbox
@@ -223,23 +234,39 @@
                       pTooltip="Checkbox"
                       tooltipPosition="top"
                     ></p-checkbox>
-                    <span>{{ sub.text }}</span>
+                    <!-- Editable Task Text -->
+                     
+                    <p-inplace [active]="false" [closable]="false">
+                      <ng-template #display>
+                        <span class="ml-2 flex-1">{{ sub.text }}</span>
+                      </ng-template>
+                      <ng-template #content let-closeCallback="closeCallback">
+                        <input
+                          type="text"
+                          [(ngModel)]="sub.text"
+                          [pAutoFocus]="true"
+                          (keyup.enter)="saveTasks(); closeCallback()"
+                          class="w-full !bg-white !text-black p-1 border border-gray-300 rounded"
+                        />
+                      </ng-template>
+                    </p-inplace>
+
                     <span
-                      *ngIf="task.dueDate"
+                      *ngIf="sub.dueDate"
                       class="ml-auto text-sm font-medium"
                       [ngClass]="{
                         'text-red-500':
-                          getDisplayDate(task.dueDate) === 'Today' ||
-                          getDisplayDate(task.dueDate) === 'Yesterday',
+                          getDisplayDate(sub.dueDate) === 'Today' ||
+                          getDisplayDate(sub.dueDate) === 'Yesterday',
                         'text-blue-500':
-                          getDisplayDate(task.dueDate) === 'Tomorrow',
+                          getDisplayDate(sub.dueDate) === 'Tomorrow',
                         'text-black':
-                          getDisplayDate(task.dueDate) !== 'Today' &&
-                          getDisplayDate(task.dueDate) !== 'Tomorrow' &&
-                          getDisplayDate(task.dueDate) !== 'Yesterday'
+                          getDisplayDate(sub.dueDate) !== 'Today' &&
+                          getDisplayDate(sub.dueDate) !== 'Tomorrow' &&
+                          getDisplayDate(sub.dueDate) !== 'Yesterday'
                       }"
                     >
-                      {{ getDisplayDate(task.dueDate) }}
+                      {{ getDisplayDate(sub.dueDate) }}
                     </span>
                   </li>
                 </ul>

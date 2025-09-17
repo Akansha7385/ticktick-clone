@@ -90,6 +90,8 @@ export class BodyComponent {
   sectionPanels: { label: string; tasks: Task[]; showTaskInput: boolean }[] = []; 
   panelCollapsed: boolean[] = []; 
   selectedTaskPanelIndex?: number;
+  selectedSubtaskDueDate: Date | null = null;
+
 
   ngOnInit() {
     this.sectionPanels.forEach(() => this.panelCollapsed.push(true)); // start collapsed
@@ -288,9 +290,15 @@ export class BodyComponent {
       subtasks: duplicateSubtasks(this.selectedTask.subtasks),
     };
 
+     if (this.selectedTaskPanelIndex !== undefined) {
+    this.sectionPanels[this.selectedTaskPanelIndex].tasks.push(newTask);
+    this.saveSectionPanels();
+  } else {
+    // Normal tasks
     this.allTasks.push(newTask);
-    this.getTasksByCategoryId(this.selectedCategoryDetails.id); // refresh the task list
+    this.getTasksByCategoryId(this.selectedCategoryDetails.id);
     this.saveTasks();
+  }
     this.message = 'Task duplicated!';
     setTimeout(() => (this.message = ''), 2000);
   }
@@ -396,7 +404,7 @@ export class BodyComponent {
       });
       task.showSubtaskInput = false;
     }
-
+    this.selectedSubtaskDueDate = null;
     this.saveTasks();
   }
 
@@ -646,14 +654,40 @@ export class BodyComponent {
       setTimeout(() => (this.message = ''), 2000);
     }
   }
-  selectTask(task: Task) {
-    // find original task in allTasks
-    const originalTask = this.allTasks.find((t) => t.id === task.id);
-    if (originalTask) {
-      this.selectedTask = originalTask;
-      this.date = originalTask.dueDate ? new Date(originalTask.dueDate) : null;
+ selectTask(task: Task) {
+  // helper: recursive search
+  const findTaskRecursive = (list: Task[], taskId: string): Task | null => {
+    for (let t of list) {
+      if (t.id === taskId) return t;
+      if (t.subtasks && t.subtasks.length > 0) {
+        const found = findTaskRecursive(t.subtasks, taskId);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // 1️⃣ normal tasks
+  let originalTask = findTaskRecursive(this.allTasks, task.id);
+
+  // 2️⃣ panel tasks (agar allTasks me nahi mila)
+  if (!originalTask) {
+    for (let panel of this.sectionPanels) {
+      const found = findTaskRecursive(panel.tasks, task.id);
+      if (found) {
+        originalTask = found;
+        break;
+      }
     }
   }
+
+  // 3️⃣ assign selected task
+  if (originalTask) {
+    this.selectedTask = originalTask;
+    this.date = originalTask.dueDate ? new Date(originalTask.dueDate) : null;
+  }
+}
+
 
   onEnterSave(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -701,5 +735,19 @@ export class BodyComponent {
     this.saveTasks();
     this.taskText = '';
   }
+
+  updatePanelTask(panelIndex: number, taskIndex: number, newText: string) {
+  this.sectionPanels[panelIndex].tasks[taskIndex].text = newText;
+  this.saveSectionPanels();  // localStorage update
+}
+
+updateTask(task: Task) {
+  // agar text khali ho gaya toh ignore karo
+  if (!task.text || !task.text.trim()) return;
+
+  // changes ko localStorage me save karo
+  this.saveTasks();
+}
+
   
 }

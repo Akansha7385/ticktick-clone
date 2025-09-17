@@ -38,3 +38,11 @@
   display: none; 
 }
 
+::ng-deep .p-inplace .p-inplace-content input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: white !important;
+  color: black !important;
+}
+
