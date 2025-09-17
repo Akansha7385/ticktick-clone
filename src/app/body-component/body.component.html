@@ -158,27 +158,48 @@
                   >
                     <!-- Checkbox -->
                     <p-checkbox
+                      *ngIf="task.type === 'task'"
                       [(ngModel)]="task.completed"
                       (onChange)="completeTask(task, i)"
                       [binary]="true"
                       pTooltip="Checkbox"
                       tooltipPosition="top"
                     ></p-checkbox>
+
+                    <i
+                      *ngIf="task.type === 'note'"
+                      class="pi pi-file text-green-600"
+                      pTooltip="Note"
+                      tooltipPosition="top"
+                    ></i>
                     <!-- Task Text -->
                     <p-inplace [active]="false" [closable]="false">
-    <ng-template #display>
-      <span>{{ task.text }}</span>
-    </ng-template>
-    <ng-template #content let-closeCallback="closeCallback">
-      <input
-        type="text"
-        [(ngModel)]="task.text"
-        [pAutoFocus]="true"
-        (keyup.enter)="saveTasks(); closeCallback()"
-        class="w-full"
-      />
-    </ng-template>
-  </p-inplace>
+                      <ng-template #display>
+                        <span
+                          [ngClass]="{
+                            'text-red-500': task.priority === 'high',
+                            'text-yellow-500': task.priority === 'medium',
+                            'text-green-500': task.priority === 'low',
+                            'text-black': task.priority === 'none'
+                          }"
+                          >{{ task.text }}</span
+                        >
+                      </ng-template>
+                      <ng-template #content let-closeCallback="closeCallback">
+                        <input
+                          type="text"
+                          [(ngModel)]="task.text"
+                          [pAutoFocus]="true"
+                          (keyup.enter)="saveTasks(); closeCallback()"
+                          class="w-full"
+                          [ngClass]="{
+    'text-red-500': task.priority === 'high',
+                            'text-yellow-500': task.priority === 'medium',
+                            'text-green-500': task.priority === 'low',
+                            'text-black': task.priority === 'none'}" 
+                        />
+                      </ng-template>
+                    </p-inplace>
                     <!-- Task Priority / Due Date -->
                     <span
                       *ngIf="task.dueDate"
@@ -228,17 +249,34 @@
                     "
                   >
                     <p-checkbox
+                      *ngIf="sub.type === 'task'"
                       [(ngModel)]="sub.completed"
                       (onChange)="completeTask(sub, i, task)"
                       [binary]="true"
                       pTooltip="Checkbox"
                       tooltipPosition="top"
                     ></p-checkbox>
+
+                    <i
+                      *ngIf="sub.type === 'note'"
+                      class="pi pi-file text-green-600"
+                      pTooltip="Note"
+                      tooltipPosition="top"
+                    ></i>
                     <!-- Editable Task Text -->
-                     
+
                     <p-inplace [active]="false" [closable]="false">
                       <ng-template #display>
-                        <span class="ml-2 flex-1">{{ sub.text }}</span>
+                        <span
+                          class="ml-2 flex-1"
+                          [ngClass]="{
+                            'text-red-500': sub.priority === 'high',
+                            'text-yellow-500': sub.priority === 'medium',
+                            'text-green-500': sub.priority === 'low',
+                            'text-black': !sub.priority
+                          }"
+                          >{{ sub.text }}</span
+                        >
                       </ng-template>
                       <ng-template #content let-closeCallback="closeCallback">
                         <input
@@ -247,6 +285,11 @@
                           [pAutoFocus]="true"
                           (keyup.enter)="saveTasks(); closeCallback()"
                           class="w-full !bg-white !text-black p-1 border border-gray-300 rounded"
+                           [ngClass]="{
+    'text-red-500': sub.priority === 'high',
+                            'text-yellow-500': sub.priority === 'medium',
+                            'text-green-500': sub.priority === 'low',
+                            'text-black': sub.priority === 'none'}" 
                         />
                       </ng-template>
                     </p-inplace>
@@ -541,6 +584,12 @@
             [(ngModel)]="selectedTask.text"
             (blur)="saveTasks()"
             class="w-full p-2 text-xl font-semibold border-0 outline-none mt-2 text-black bg-white"
+             [ngClass]="{
+    'text-red-500': selectedTask.priority === 'high',
+    'text-yellow-500': selectedTask.priority === 'medium',
+    'text-green-500': selectedTask.priority === 'low',
+    'text-black': selectedTask.priority === 'none'
+  }"
           />
           <span
             *ngIf="selectedTask !== selectedTask"
@@ -557,6 +606,12 @@
             rows="4"
             class="w-full p-2 border-none outline-none text-black bg-white mt-2"
             placeholder="Add Description"
+             [ngClass]="{
+    'text-red-500': selectedTask.priority === 'high',
+    'text-yellow-500': selectedTask.priority === 'medium',
+    'text-green-500': selectedTask.priority === 'low',
+    'text-black': selectedTask.priority === 'none'
+  }"
           ></textarea>
           <span
             *ngIf="selectedTask !== selectedTask"

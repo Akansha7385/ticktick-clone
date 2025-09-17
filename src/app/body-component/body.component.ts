@@ -15,6 +15,7 @@ import { CategoryService } from '../services/category.service';
 import { Popup } from '../popup/popup';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
 
 export interface Task {
   id: string;
@@ -130,7 +131,8 @@ export class BodyComponent {
   constructor(
     private TaskService: TaskService,
     private CategoryService: CategoryService,
-    private router: Router
+    private router: Router,
+    private cd: ChangeDetectorRef
   ) {
     const savedTasks = localStorage.getItem('tasks');
     if (savedTasks) {
@@ -367,11 +369,13 @@ export class BodyComponent {
 
   //for setting priority
   setPriority(priority: 'high' | 'medium' | 'low' | 'none') {
-    if (this.selectedTask) {
-      this.selectedTask.priority = priority;
-      this.saveTasks();
-    }
+  if (this.selectedTask) {
+    this.selectedTask.priority = priority;
+    this.saveTasks();
+    this.cd.detectChanges(); // ensure UI updates
   }
+}
+
 
   // Add subtask for both normal tasks and section panel tasks
   addSubtask(task: Task, subtaskText: string, panelIndex?: number) {
@@ -607,6 +611,17 @@ export class BodyComponent {
     const currentIndex = order.indexOf(this.selectedTask.priority ?? 'none');
     const nextIndex = (currentIndex + 1) % order.length;
     this.selectedTask.priority = order[nextIndex];
+     
+     this.sectionPanels.forEach(panel => {
+    panel.tasks.forEach(task => {
+      if (task.id === this.selectedTask.id) {
+        task.priority = this.selectedTask.priority;
+      }
+      task.subtasks?.forEach(sub => {
+        if (sub.id === this.selectedTask.id) sub.priority = this.selectedTask.priority;
+      });
+    });
+  });
     this.saveTasks();
   }
 
