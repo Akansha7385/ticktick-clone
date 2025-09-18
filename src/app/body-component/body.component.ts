@@ -805,8 +805,4 @@ deletePanel(index: number) {
    this.saveSectionPanels();
 }
 
-get filteredPanels() {
-  return this.sectionPanels.filter(panel => panel.categoryId === this.selectedCategoryDetails.id);
-}
-  
 }
