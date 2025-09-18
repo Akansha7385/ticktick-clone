@@ -251,7 +251,12 @@
                 <!-- Subtask Text -->
                 <p-inplace [active]="false" [closable]="false">
                   <ng-template #display>
-                    <span>{{ sub.text }}</span>
+                    <span  [ngClass]="{
+    'text-red-500': sub.priority === 'high',
+    'text-yellow-500': sub.priority === 'medium',
+    'text-blue-500': sub.priority === 'low',
+    'text-black': sub.priority === 'none'
+  }">{{ sub.text }}</span>
                   </ng-template>
                   <ng-template #content let-closeCallback="closeCallback">
                     <input
