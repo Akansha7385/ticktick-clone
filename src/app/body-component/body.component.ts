@@ -565,15 +565,36 @@ private removeTask(list: Task[], taskToRemove: Task) {
   get unpinnedTasks(): Task[] {
     return this.tasks.filter((t) => !t.pinned);
   }
+  
   get pinnedTasks(): Task[] {
     return this.tasks.filter((t) => t.pinned);
+  }
+
+  // Helper methods for section panel tasks
+  getPinnedTasksForPanel(panel: SectionPanel): Task[] {
+    return panel.tasks.filter((t) => t.pinned);
+  }
+
+  getUnpinnedTasksForPanel(panel: SectionPanel): Task[] {
+    return panel.tasks.filter((t) => !t.pinned);
+  }
+
+  hasPinnedTasksInPanel(panel: SectionPanel): boolean {
+    return panel.tasks.some((t) => t.pinned);
   }
 
   //pin or unpin the selected task
   pinTask() {
     if (this.selectedTask) {
       this.selectedTask.pinned = !this.selectedTask.pinned;
-      this.saveTasks();
+      
+      // If task is in a section panel, save section panels
+      if (this.selectedTaskPanelIndex !== undefined) {
+        this.saveSectionPanels();
+      } else {
+        // If task is in main tasks array, save tasks
+        this.saveTasks();
+      }
     }
   }
 

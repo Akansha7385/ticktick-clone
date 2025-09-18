@@ -148,13 +148,18 @@
 
       <!-- Task List with Subtasks -->
       <div class="mt-3">
-        <ul class="!text-black">
-          <li
-            *ngFor="let task of panel.tasks; let j = index"
-            (dblclick)="selectTask(task)"
-            class="p-2 border-b border-gray-200 flex flex-col gap-2 hover:shadow-sm transition-shadow duration-200"
-            (contextmenu)="onRightClick($event, menu['cm'], task, menu, i)"
-          >
+        <!-- Pinned Tasks in Section -->
+        <div *ngIf="hasPinnedTasksInPanel(panel)" class="mb-4">
+          <h3 class="text-sm font-semibold flex items-center gap-2 text-gray-600 mb-2">
+            <i class="pi pi-thumbtack text-red-500 text-xs"></i> Pinned
+          </h3>
+          <ul class="!text-black">
+            <li
+              *ngFor="let task of getPinnedTasksForPanel(panel); let j = index"
+              (dblclick)="selectTask(task)"
+              class="p-2 border-b border-gray-200 flex flex-col gap-2 hover:shadow-sm transition-shadow duration-200"
+              (contextmenu)="onRightClick($event, menu['cm'], task, menu, i)"
+            >
             <!-- Task Row -->
             <div class="flex items-center gap-2">
               <p-checkbox
@@ -286,7 +291,167 @@
               </li>
             </ul>
           </li>
-        </ul>
+          </ul>
+        </div>
+
+        <!-- Unpinned Tasks in Section -->
+        <div *ngIf="getUnpinnedTasksForPanel(panel).length > 0" class="mb-4">
+          <h3 class="text-sm font-semibold flex items-center gap-2 text-gray-600 mb-2">
+            <i class="pi pi-folder-open text-blue-500 text-xs"></i> Unpinned
+          </h3>
+          <ul class="!text-black">
+            <li
+              *ngFor="let task of getUnpinnedTasksForPanel(panel); let j = index"
+              (dblclick)="selectTask(task)"
+              class="p-2 border-b border-gray-200 flex flex-col gap-2 hover:shadow-sm transition-shadow duration-200"
+              (contextmenu)="onRightClick($event, menu['cm'], task, menu, i)"
+            >
+            <!-- Task Row -->
+            <div class="flex items-center gap-2">
+              <p-checkbox
+                *ngIf="task.type === 'task'"
+                [(ngModel)]="task.completed"
+                (onChange)="completeTask(task, i)"
+                [binary]="true"
+                pTooltip="Checkbox"
+              ></p-checkbox>
+
+              <i
+                *ngIf="task.type === 'note'"
+                class="pi pi-file text-green-600"
+              ></i>
+
+              <!-- Task Text -->
+              <p-inplace [active]="false" [closable]="false">
+                <ng-template #display>
+                  <span
+                    [ngClass]="{
+                      'text-red-500': task.priority === 'high',
+                      'text-yellow-500': task.priority === 'medium',
+                      'text-blue-500': task.priority === 'low',
+                      'text-black': task.priority === 'none'
+                    }"
+                  >
+                    {{ task.text }}
+                  </span>
+                </ng-template>
+                <ng-template #content let-closeCallback="closeCallback">
+                  <input
+                    type="text"
+                    [(ngModel)]="task.text"
+                    [pAutoFocus]="true"
+                    (keyup.enter)="saveTasks(); closeCallback()"
+                    class="w-full"
+                  />
+                </ng-template>
+              </p-inplace>
+
+              <!-- Tags -->
+              <div class="flex gap-1 ml-2">
+                <span
+                  *ngFor="let tag of task.tags"
+                  class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                >
+                  {{ tag }}
+                </span>
+              </div>
+
+              <!-- Due Date -->
+              <span
+                *ngIf="task.dueDate"
+                class="ml-auto text-sm font-medium"
+                [ngClass]="{
+                  'text-red-500':
+                    getDisplayDate(task.dueDate) === 'Today' ||
+                    getDisplayDate(task.dueDate) === 'Yesterday',
+                  'text-blue-500': getDisplayDate(task.dueDate) === 'Tomorrow',
+                  'text-black':
+                    getDisplayDate(task.dueDate) !== 'Today' &&
+                    getDisplayDate(task.dueDate) !== 'Tomorrow' &&
+                    getDisplayDate(task.dueDate) !== 'Yesterday'
+                }"
+              >
+                {{ getDisplayDate(task.dueDate) }}
+              </span>
+            </div>
+
+            <!-- Subtask Input -->
+            <div *ngIf="task.showSubtaskInput" class="flex gap-2 mt-1">
+              <input
+                type="text"
+                pInputText
+                placeholder="+ Add subtask"
+                #subtaskInput
+                class="w-full p-1 !bg-white !text-black border border-gray-300 rounded"
+                (keyup.enter)="
+                  addSubtask(task, subtaskInput.value, i);
+                  subtaskInput.value = '';
+                  task.showSubtaskInput = false
+                "
+              />
+            </div>
+
+            <!-- Subtask List -->
+            <ul *ngIf="task.subtasks?.length" class="ml-6 mt-1">
+              <li
+                *ngFor="let sub of task.subtasks"
+                class="flex items-center gap-2 hover:shadow-sm transition-shadow duration-200"
+                (dblclick)="selectTask(sub)"
+                (contextmenu)="onRightClick($event, menu['cm'], sub, menu, i)"
+              >
+                <p-checkbox
+                  *ngIf="sub.type === 'task'"
+                  [(ngModel)]="sub.completed"
+                  (onChange)="completeTask(sub, i, task)"
+                  [binary]="true"
+                  pTooltip="Checkbox"
+                ></p-checkbox>
+
+                <i
+                  *ngIf="sub.type === 'note'"
+                  class="pi pi-file text-green-600"
+                ></i>
+
+                <!-- Subtask Text -->
+                <p-inplace [active]="false" [closable]="false">
+                  <ng-template #display>
+                    <span  [ngClass]="{
+    'text-red-500': sub.priority === 'high',
+    'text-yellow-500': sub.priority === 'medium',
+    'text-blue-500': sub.priority === 'low',
+'text-black': sub.priority === 'none'
+  }">{{ sub.text }}</span>
+                  </ng-template>
+                  <ng-template #content let-closeCallback="closeCallback">
+                    <input
+                      type="text"
+                      [(ngModel)]="sub.text"
+                      [pAutoFocus]="true"
+                      (keyup.enter)="saveTasks(); closeCallback()"
+                      class="w-full"
+                    />
+                  </ng-template>
+                </p-inplace>
+
+                <!-- Tags for Subtask -->
+                <div class="flex gap-1 ml-2">
+                  <span
+                    *ngFor="let tag of sub.tags"
+                    class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                  >
+                    {{ tag }}
+                  </span>
+                </div>
+
+                <!-- Subtask Due Date -->
+                <span *ngIf="sub.dueDate" class="ml-auto text-sm font-medium">
+                  {{ getDisplayDate(sub.dueDate) }}
+                </span>
+              </li>
+            </ul>
+          </li>
+          </ul>
+        </div>
       </div>
     </p-panel>
   </ng-container>
