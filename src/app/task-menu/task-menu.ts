@@ -106,14 +106,6 @@ export class TaskMenu {
       command: () => this.moveToList.emit('inbox')
     },
     {
-      label: 'Welcome',
-      command: () => this.moveToList.emit('welcome')
-    },
-    {
-      label: 'Work',
-      command: () => this.moveToList.emit('work')
-    },
-    {
       label: 'Today',
       command: () => this.moveToList.emit('today')
     }

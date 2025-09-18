@@ -40,6 +40,14 @@ export interface Task {
   categoryId?: number;
 }
 
+export interface SectionPanel {
+  label: string;
+  tasks: Task[];
+  showTaskInput: boolean;
+  categoryId: number; // ye sabse important
+}
+
+
 import { PanelModule } from 'primeng/panel';
 import { InplaceModule } from 'primeng/inplace';
 import { AutoFocusModule } from 'primeng/autofocus';
@@ -88,7 +96,7 @@ export class BodyComponent {
   allowEditing = true;
   showTaskInput: boolean = false;
   sectionTasks: Task[] = [];//section tasks
-  sectionPanels: { label: string; tasks: Task[]; showTaskInput: boolean }[] = []; 
+  sectionPanels: SectionPanel[] = [];
   panelCollapsed: boolean[] = []; 
   selectedTaskPanelIndex?: number;
   selectedSubtaskDueDate: Date | null = null;
@@ -99,14 +107,16 @@ export class BodyComponent {
   }
 
   //new section add karne ka method
-  addSectionFromPopup() {
-    this.sectionPanels.push({
-      label: '',
-      tasks: [],
-      showTaskInput: false,
-    });
-    this.saveSectionPanels();
-  }
+ addSectionFromPopup() {
+  this.sectionPanels.push({
+    label: '',
+    tasks: [],
+    showTaskInput: false,
+    categoryId: this.selectedCategoryDetails.id, 
+  });
+  this.saveSectionPanels();
+}
+
 
   //localStorage me save krne ka method
   saveSectionPanels() {
@@ -686,8 +696,11 @@ private removeTask(list: Task[], taskToRemove: Task) {
       setTimeout(() => (this.message = ''), 2000);
     }
   }
- selectTask(task: Task) {
-  // helper: recursive search
+ selectTask(task: Task, event?: MouseEvent) {
+  if (event && event.type !== 'dblclick') {
+    return;
+  }
+
   const findTaskRecursive = (list: Task[], taskId: string): Task | null => {
     for (let t of list) {
       if (t.id === taskId) return t;
@@ -699,10 +712,8 @@ private removeTask(list: Task[], taskToRemove: Task) {
     return null;
   };
 
-  // 1️⃣ normal tasks
   let originalTask = findTaskRecursive(this.allTasks, task.id);
 
-  // 2️⃣ panel tasks (agar allTasks me nahi mila)
   if (!originalTask) {
     for (let panel of this.sectionPanels) {
       const found = findTaskRecursive(panel.tasks, task.id);
@@ -713,12 +724,12 @@ private removeTask(list: Task[], taskToRemove: Task) {
     }
   }
 
-  // 3️⃣ assign selected task
   if (originalTask) {
     this.selectedTask = originalTask;
     this.date = originalTask.dueDate ? new Date(originalTask.dueDate) : null;
   }
 }
+
 
 
   onEnterSave(event: Event) {
@@ -729,22 +740,31 @@ private removeTask(list: Task[], taskToRemove: Task) {
 
   customCategories: { id: number; name: string }[] = [];
 
-  moveTaskToCategory(categoryId: number) {
-    if (this.selectedTask) {
-      this.selectedTask.categoryId = categoryId;
-      const categoryDetails =
-        this.CategoryService.getCategoryDetails(categoryId);
-      this.selectedTask.list = categoryDetails?.name?.toLowerCase() || 'custom';
-      this.getTasksByCategoryId(categoryId);
-      this.saveTasks();
+ moveTaskToCategory(categoryId: number, panelIndex?: number) {
+  if (this.selectedTask) {
+    this.selectedTask.categoryId = categoryId;
+    const categoryDetails = this.CategoryService.getCategoryDetails(categoryId);
+    this.selectedTask.list = categoryDetails?.name?.toLowerCase() || 'custom';
+
+    // Agar panelIndex diya gaya hai, panel tasks array me update karein
+    if (panelIndex !== undefined) {
+      const panelTasks = this.sectionPanels[panelIndex].tasks;
+      const index = panelTasks.indexOf(this.selectedTask);
+      if (index > -1) panelTasks.splice(index, 1); // remove from panel
     } else {
-      // Update placeholder for new task
-      this.selectedCategoryDetails =
-        this.CategoryService.getCategoryDetails(categoryId);
-      this.selectedCategory =
-        (this.selectedCategoryDetails?.name?.toLowerCase() as any) || 'inbox';
+      // Normal tasks ke liye
+      const index = this.unpinnedTasks.indexOf(this.selectedTask);
+      if (index > -1) this.unpinnedTasks.splice(index, 1);
     }
+
+    this.getTasksByCategoryId(categoryId);
+    this.saveTasks();
+  } else {
+    this.selectedCategoryDetails = this.CategoryService.getCategoryDetails(categoryId);
+    this.selectedCategory = (this.selectedCategoryDetails?.name?.toLowerCase() as any) || 'inbox';
   }
+}
+
 
   addTaskToSection(panelIndex: number) {
     if (!this.taskText.trim()) return;
@@ -785,5 +805,8 @@ deletePanel(index: number) {
    this.saveSectionPanels();
 }
 
+get filteredPanels() {
+  return this.sectionPanels.filter(panel => panel.categoryId === this.selectedCategoryDetails.id);
+}
   
 }
