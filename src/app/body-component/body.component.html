@@ -136,7 +136,7 @@
           type="text"
           pInputText
           placeholder="+ Add task"
-          [(ngModel)]="taskText"
+          [(ngModel)]="panel.taskText"
           (keyup.enter)="
             addTaskToSection(i);
             taskText = '';

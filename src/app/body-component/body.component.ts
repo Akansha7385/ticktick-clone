@@ -44,7 +44,8 @@ export interface SectionPanel {
   label: string;
   tasks: Task[];
   showTaskInput: boolean;
-  categoryId: number; // ye sabse important
+  categoryId: number;
+  taskText?: string;
 }
 
 
@@ -767,26 +768,28 @@ private removeTask(list: Task[], taskToRemove: Task) {
 
 
   addTaskToSection(panelIndex: number) {
-    if (!this.taskText.trim()) return;
+  const panel = this.sectionPanels[panelIndex];
+  if (!panel.taskText?.trim()) return;
 
-    const newTask: Task = {
-      id: this.generateId(),
-      text: this.taskText.trim(),
-      completed: false,
-      priority: 'none',
-      subtasks: [],
-      type: 'task',
-      pinned: false,
-      list: 'custom',
-      categoryId: this.selectedCategoryDetails.id,
-      dueDate: null,
-    };
+  const newTask: Task = {
+    id: this.generateId(),
+    text: panel.taskText.trim(),
+    completed: false,
+    priority: 'none',
+    subtasks: [],
+    type: 'task',
+    pinned: false,
+    list: 'custom',
+    categoryId: this.selectedCategoryDetails.id,
+    dueDate: null,
+  };
 
-    this.sectionPanels[panelIndex].tasks.push(newTask); // Add to correct panel
-    this.allTasks.push(newTask);
-    this.saveTasks();
-    this.taskText = '';
-  }
+  panel.tasks.push(newTask);
+  this.allTasks.push(newTask);
+  this.saveTasks();
+  panel.taskText = ''; // input clear
+}
+
 
   updatePanelTask(panelIndex: number, taskIndex: number, newText: string) {
   this.sectionPanels[panelIndex].tasks[taskIndex].text = newText;
