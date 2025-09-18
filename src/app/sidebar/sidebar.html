@@ -13,26 +13,33 @@
   <div class="flex flex-col h-full bg-gray-100">
     <!-- Today Section -->
     <div class="pt-4 px-4 text-sm text-gray-800">
-      <p-button
-        label="Today"
-        (click)="updateSelectedCategory(1)"
-        styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200"
-      />
-      <p-button
-        label="Next 7 Days"
-        (click)="updateSelectedCategory(2)"
-        styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200"
-      />
-      <p-button
-        label="Inbox"
-        (click)="updateSelectedCategory(3)"
-        styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200"
-      />
-      <p-button
-  label="Completed"
+     <p-button
+  (click)="updateSelectedCategory(1)"
+  styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200 flex items-center"
+>
+  <i class="pi pi-calendar mr-2"></i> Today
+</p-button>
+
+<p-button
+  (click)="updateSelectedCategory(2)"
+  styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200 flex items-center"
+>
+  <i class="pi pi-clock mr-2"></i> Next 7 Days
+</p-button>
+
+<p-button
+  (click)="updateSelectedCategory(3)"
+  styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200 flex items-center"
+>
+  <i class="pi pi-inbox mr-2"></i> Inbox
+</p-button>
+
+<p-button
   (click)="updateSelectedCategory(4)"
-  styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200"
-/>
+  styleClass="!bg-gray-100 !text-gray-800 !border-0 !shadow-none w-full mb-2 hover:!bg-gray-200 flex items-center"
+>
+  <i class="pi pi-check-circle mr-2"></i> Completed
+</p-button>
 
     </div>
 

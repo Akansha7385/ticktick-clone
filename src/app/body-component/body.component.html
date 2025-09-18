@@ -152,7 +152,7 @@
           <li
             *ngFor="let task of panel.tasks; let j = index"
             (dblclick)="selectTask(task)"
-            class="p-2 border-b border-gray-200 flex flex-col gap-2"
+            class="p-2 border-b border-gray-200 flex flex-col gap-2 hover:shadow-sm transition-shadow duration-200"
             (contextmenu)="onRightClick($event, menu['cm'], task, menu, i)"
           >
             <!-- Task Row -->
@@ -231,7 +231,7 @@
             <ul *ngIf="task.subtasks?.length" class="ml-6 mt-1">
               <li
                 *ngFor="let sub of task.subtasks"
-                class="flex items-center gap-2"
+                class="flex items-center gap-2 hover:shadow-sm transition-shadow duration-200"
                 (dblclick)="selectTask(sub)"
                 (contextmenu)="onRightClick($event, menu['cm'], sub, menu, i)"
               >
@@ -364,7 +364,7 @@
         <ul class="mt-2 text-black">
           <li
             *ngFor="let note of notes"
-            class="p-2 border-b border-gray-200 text-gray-700"
+            class="p-2 border-b border-gray-200 text-gray-700 hover:shadow-sm transition-shadow duration-200"
             (contextmenu)="onRightClick($event, menu['cm'], note, menu)"
           >
             <i class="pi pi-file text-green-600"></i>
@@ -377,7 +377,7 @@
       <ng-template #recursiveSubtasks let-taskList let-parent="parent">
         <li
           *ngFor="let task of taskList"
-          class="flex flex-col gap-1 p-2 border-b border-gray-200"
+          class="flex flex-col gap-1 p-2 border-b border-gray-200 hover:shadow-sm transition-shadow duration-200"
           (contextmenu)="onRightClick($event, menu['cm'], task, menu)"
           (dblclick)="selectTask(task)"
         >
