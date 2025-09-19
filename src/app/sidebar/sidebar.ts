@@ -1,74 +1,100 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TaskService } from '../services/task.service';
 import { ButtonModule } from 'primeng/button';
 import { CategoryService } from '../services/category.service';
-import { CategoryMenu } from "../category-menu/category-menu";
-
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { FormsModule } from '@angular/forms';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-sidebar',
-  standalone:true,
-  imports: [CommonModule, ButtonModule, CategoryMenu],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    FormsModule,
+    ConfirmDialogModule,
+    ToastModule,
+  ],
   templateUrl: './sidebar.html',
-  styleUrl: './sidebar.css'
+  styleUrl: './sidebar.css',
+  providers: [MessageService, ConfirmationService],
 })
 export class Sidebar {
-
-  @Input() visible: boolean = false; 
+  @Input() visible: boolean = false;
   // visible = false;
-  @Output()onSideBarToggle = new EventEmitter<void>();
-  @Output()onCategoryUpdate = new EventEmitter<void>();
-  @ViewChildren(CategoryMenu) categoryMenus!: QueryList<CategoryMenu>;
+  @Output() onSideBarToggle = new EventEmitter<void>();
+  @Output() onCategoryUpdate = new EventEmitter<void>();
 
-categoryList:any=[];
-  constructor(private TaskService : TaskService, private CategoryService: CategoryService){
-    this.CategoryService.categoryListSubject.subscribe((res:any)=>{
+  categoryList: any = [];
+  showCategoryDialog = false;
+  newCategoryName = '';
+
+  constructor(
+    private TaskService: TaskService,
+    private CategoryService: CategoryService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
+  ) {
+    this.CategoryService.categoryListSubject.subscribe((res: any) => {
       this.categoryList = res;
-    })
+    });
   }
 
-  updateSelectedCategory(id:number){
-    this.CategoryService.updateSelectedCategory({id:id});
+  updateSelectedCategory(id: number) {
+    this.CategoryService.updateSelectedCategory({ id: id });
   }
   toggleDrawer() {
     this.visible = !this.visible;
     this.onSideBarToggle.emit();
   }
   addCategory() {
-  const categoryName = prompt("Enter new category name:");
-  if (categoryName && categoryName.trim() !== "") {
+    this.showCategoryDialog = true;
+  }
+
+  saveCategory() {
+    if (this.newCategoryName.trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Validation',
+        detail: 'Category name cannot be empty!',
+      });
+      return;
+    }
+
     const newCategory = {
-      id: Date.now(), 
-      name: categoryName.trim()
+      id: Date.now(),
+      name: this.newCategoryName.trim(),
     };
     this.CategoryService.addNewCategory(newCategory);
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Category added successfully!',
+    });
+
+    this.newCategoryName = '';
+    this.showCategoryDialog = false;
   }
-}
-  openCategoryMenu(event: Event, category: any) {
-    const menu = this.categoryMenus.find(m => m.category.id === category.id);
-    if (menu) {
-      menu.toggle(event);
-    } 
+
+  handleDeleteCategory(categoryId: number) {
+    this.confirmationService.confirm({
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.CategoryService.removeNewCategory({ id: categoryId });
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Deleted',
+          detail: 'Category deleted successfully!',
+        });
+      },
+    });
   }
-
-handleDeleteCategory(categoryId: number) {
-  const confirmDelete = confirm('Are you sure you want to delete this category?');
-  if (!confirmDelete) return;
-
-  // 🔹 Update in CategoryService
-  this.CategoryService.removeNewCategory({ id: categoryId });
-
-  // 🔹 Update local categoryList from service
-  this.CategoryService.categoryListSubject.subscribe(res => {
-    this.categoryList = res;
-  });
-}
-
-
-handlePinAllTasks(categoryId: number) {
-  this.TaskService.pinAllTasksOfCategory(categoryId);
-}
-
-
 }

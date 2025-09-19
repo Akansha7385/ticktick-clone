@@ -55,19 +55,7 @@
       (click)="selectAndReload()"
       pTooltip="Refresh" tooltipPosition="top">
     </button>
-
-    <button 
-      pButton 
-      icon="pi pi-bell"
-      class="p-button-rounded p-button-text"
-      [ngClass]="{
-        '!text-blue-500': selectedIcon === 'pi-bell',
-        '!text-gray-500': selectedIcon !== 'pi-bell'
-      }"
-      (click)="selectedIcon = 'pi-bell'; openNotificationDialog()"
-      pTooltip="Notification" tooltipPosition="top">
-    </button>
-     <app-notification-page [(visible)]="notificationVisible" (visibleChange)="onNotificationClose()"></app-notification-page>
+     
 
     <button 
       pButton 

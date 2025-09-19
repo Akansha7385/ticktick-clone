@@ -15,3 +15,9 @@
   background-color: transparent !important;
   color: #555 !important;
 }
+
+::ng-deep .p-button-label {
+  font-weight: 400 !important; /* normal text */
+}
+
+

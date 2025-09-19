@@ -23,11 +23,15 @@
     </div>
 
     <!-- Results -->
-    <ul *ngIf="results.length > 0" class="text-black divide-y divide-gray-200">
-      <li *ngFor="let task of results" class="py-2 text-sm">
-        {{ task.text }} <span class="text-gray-500 text-xs">({{ task.list }})</span>
-      </li>
-    </ul>
+   <ul *ngIf="results.length > 0" class="text-black divide-y divide-gray-200">
+  <li *ngFor="let task of results" class="py-2 text-sm flex items-center justify-between">
+    <div>
+      <input type="checkbox" [(ngModel)]="task.completed" (change)="toggleComplete(task)" class="mr-2"/>
+      {{ task.text }} <span class="text-gray-500 text-xs">({{ task.list }})</span>
+    </div>
+  </li>
+</ul>
+
 
     <div *ngIf="results.length === 0 && query" class="text-gray-400 text-sm text-center py-4">
       No tasks found

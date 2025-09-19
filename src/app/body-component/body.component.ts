@@ -53,7 +53,6 @@ import { PanelModule } from 'primeng/panel';
 import { InplaceModule } from 'primeng/inplace';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { PriorityColorPipe } from '../priority-color-pipe';
-import { CategoryMenu } from '../category-menu/category-menu';
 @Component({
   selector: 'body-component',
   standalone: true,
@@ -572,11 +571,11 @@ private removeTask(list: Task[], taskToRemove: Task) {
 
   // Helper methods for section panel tasks
   getPinnedTasksForPanel(panel: SectionPanel): Task[] {
-    return panel.tasks.filter((t) => t.pinned);
+    return panel.tasks.filter((t) => t.pinned && !t.completed);
   }
 
   getUnpinnedTasksForPanel(panel: SectionPanel): Task[] {
-    return panel.tasks.filter((t) => !t.pinned);
+    return panel.tasks.filter((t) => !t.pinned && !t.completed);
   }
 
   hasPinnedTasksInPanel(panel: SectionPanel): boolean {

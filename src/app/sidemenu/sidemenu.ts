@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SearchPage } from '../search-page/search-page';
-import { NotificationPage } from '../notification-page/notification-page';
 import { MoreComponent } from '../more/more';
 import { Shortcut } from '../shortcut/shortcut';
 import { TooltipModule } from 'primeng/tooltip';
@@ -17,7 +16,6 @@ import { TooltipModule } from 'primeng/tooltip';
     ButtonModule,
     DialogModule,
     SearchPage,
-    NotificationPage,
     MoreComponent,
     Shortcut,
     TooltipModule

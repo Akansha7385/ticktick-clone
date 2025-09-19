@@ -10,11 +10,12 @@ export interface Task {
   type?: 'task' | 'note';
   tags?: string[];
   dueDate?: string;
-  list?: 'inbox' | 'today' | 'next7Days' | 'work' | 'welcome';
+  list?: 'inbox' | 'today' | 'next7Days' | 'work' | 'welcome' | 'completed' |'custom'|string;
   pinned?: boolean;
   description?: string;
   showSubtaskInput?: boolean;
   categoryId?: number;
+
 }
 
 @Injectable({ providedIn: 'root' })
@@ -54,4 +55,21 @@ export class TaskService {
     });
     this.saveTasks(updated);
   }
+  updateTask(updatedTask: Task) {
+  const updatedTasks = this.tasks.map(task =>
+    task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+  );
+  this.saveTasks(updatedTasks);
+}
+
+completeTask(taskId: string) {
+  const updatedTasks = this.tasks.map(task => {
+    if (task.id === taskId) {
+      return { ...task, completed: true, list: 'completed' }; // move to completed
+    }
+    return task;
+  });
+  this.saveTasks(updatedTasks);
+}
+
 }
