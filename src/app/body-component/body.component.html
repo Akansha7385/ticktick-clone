@@ -587,18 +587,6 @@
             </ul>
           </div>
         </div>
-
-        <!-- Notes List -->
-        <ul class="mt-2 text-black">
-          <li
-            *ngFor="let note of notes"
-            class="p-2 border-b border-gray-200 text-gray-700 hover:shadow-sm transition-shadow duration-200"
-            (contextmenu)="onRightClick($event, menu['cm'], note, menu)"
-          >
-            <i class="pi pi-file text-green-600"></i>
-            {{ note.text }}
-          </li>
-        </ul>
       </div>
 
       <!-- Recursive Subtasks -->
@@ -611,6 +599,7 @@
         >
           <div class="flex items-center gap-2">
             <p-checkbox
+            *ngIf="task.type === 'task'"
               [(ngModel)]="task.completed"
               (onChange)="
                 completeTask(task, parent ? parent.id : undefined, parent)
@@ -619,6 +608,10 @@
               pTooltip="Checkbox"
               tooltipPosition="top"
             ></p-checkbox>
+             <i
+                          *ngIf="task.type === 'note'"
+                          class="pi pi-file text-green-600"
+                        ></i>
 
             <!-- Editable Task Text -->
             <input
