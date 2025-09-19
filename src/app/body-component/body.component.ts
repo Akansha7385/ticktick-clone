@@ -717,6 +717,7 @@ private removeTask(list: Task[], taskToRemove: Task) {
       setTimeout(() => (this.message = ''), 2000);
     }
   }
+
  selectTask(task: Task, event?: MouseEvent) {
   if (event && event.type !== 'dblclick') {
     return;
