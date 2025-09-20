@@ -46,3 +46,13 @@
   color: black !important;
 }
 
+/* Ensure panel toggle arrow is visible */
+::ng-deep .p-panel .p-panel-header .p-panel-header-icon {
+  color: black !important;
+  font-size: 1rem !important;
+}
+
+::ng-deep .p-panel .p-panel-header .p-panel-header-icon:hover {
+  color: #666 !important;
+}
+

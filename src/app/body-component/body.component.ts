@@ -100,6 +100,8 @@ export class BodyComponent {
   panelCollapsed: boolean[] = []; 
   selectedTaskPanelIndex?: number;
   selectedSubtaskDueDate: Date | null = null;
+  notSectionedPanel: SectionPanel | null = null;
+  notSectionedPanelCollapsed: boolean = false;
 
 
   ngOnInit() {
@@ -115,6 +117,29 @@ export class BodyComponent {
     categoryId: this.selectedCategoryDetails.id, 
   });
   this.saveSectionPanels();
+  this.manageNotSectionedPanel();
+}
+
+// Method to manage Not Sectioned panel
+manageNotSectionedPanel() {
+  const hasSections = this.sectionPanels.some(panel => 
+    panel.categoryId === this.selectedCategoryDetails.id && 
+    this.selectedCategoryDetails.id !== 4
+  );
+
+  if (hasSections && !this.notSectionedPanel) {
+    // Create Not Sectioned panel with current tasks
+    this.notSectionedPanel = {
+      label: 'Not Sectioned',
+      tasks: [...this.tasks], // Move all current tasks to Not Sectioned
+      showTaskInput: false,
+      categoryId: this.selectedCategoryDetails.id
+    };
+    // Keep tasks in main list for normal display when no sections
+  } else if (!hasSections && this.notSectionedPanel) {
+    // Remove Not Sectioned panel - tasks are already in main list
+    this.notSectionedPanel = null;
+  }
 }
 
 
@@ -221,6 +246,7 @@ export class BodyComponent {
     }
 
     this.selectedCategoryDetails = this.CategoryService.getCategoryDetails(id);
+    this.manageNotSectionedPanel();
   }
 
   //for random id generation
@@ -276,7 +302,20 @@ export class BodyComponent {
       newTask.list = 'custom';
     }
 
+    // Always add to allTasks array for persistence
     this.allTasks.push(newTask);
+    
+    // Check if we have sections and should also add to Not Sectioned panel
+    const hasSections = this.sectionPanels.some(panel => 
+      panel.categoryId === this.selectedCategoryDetails.id && 
+      this.selectedCategoryDetails.id !== 4
+    );
+
+    if (hasSections && this.notSectionedPanel) {
+      // Also add to Not Sectioned panel for display
+      this.notSectionedPanel.tasks.push(newTask);
+    }
+    
     this.getTasksByCategoryId(this.selectedCategoryDetails.id);
     this.taskText = '';
     this.saveTasks();
@@ -826,7 +865,84 @@ updateTask(task: Task) {
 }
 deletePanel(index: number) {
   this.sectionPanels.splice(index, 1);
-   this.saveSectionPanels();
+  this.saveSectionPanels();
+  this.manageNotSectionedPanel();
+}
+
+// Add task to Not Sectioned panel
+addTaskToNotSectioned() {
+  if (!this.notSectionedPanel?.taskText?.trim()) return;
+
+  const newTask: Task = {
+    id: this.generateId(),
+    text: this.notSectionedPanel.taskText.trim(),
+    completed: false,
+    priority: this.selectedPriority,
+    subtasks: [],
+    type: 'task',
+    pinned: false,
+    list: this.selectedCategory,
+    categoryId: this.selectedCategoryDetails.id,
+  };
+
+  // Due date logic
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (this.selectedCategoryDetails.id == 1) {
+    newTask.dueDate = today.toISOString();
+    newTask.list = 'today';
+  } else if (this.selectedCategoryDetails.id == 2) {
+    const next7 = new Date();
+    next7.setDate(today.getDate() + 7);
+    next7.setHours(0, 0, 0, 0);
+    newTask.dueDate = next7.toISOString();
+    newTask.list = 'next7Days';
+  } else if (this.selectedCategoryDetails.id == 3) {
+    newTask.dueDate = null;
+    newTask.list = 'inbox';
+  } else {
+    newTask.dueDate = null;
+    newTask.list = 'custom';
+  }
+
+  // Always add to allTasks array for persistence
+  this.allTasks.push(newTask);
+  
+  // Also add to Not Sectioned panel for display
+  this.notSectionedPanel.tasks.push(newTask);
+  
+  this.notSectionedPanel.taskText = '';
+  this.saveTasks();
+}
+
+// Update task text method
+updateTaskText(task: Task) {
+  if (!task.text || !task.text.trim()) return;
+  
+  // Update in allTasks array
+  const taskIndex = this.allTasks.findIndex(t => t.id === task.id);
+  if (taskIndex !== -1) {
+    this.allTasks[taskIndex].text = task.text.trim();
+  }
+  
+  // Update in notSectionedPanel if it exists
+  if (this.notSectionedPanel) {
+    const panelTaskIndex = this.notSectionedPanel.tasks.findIndex(t => t.id === task.id);
+    if (panelTaskIndex !== -1) {
+      this.notSectionedPanel.tasks[panelTaskIndex].text = task.text.trim();
+    }
+  }
+  
+  // Update in section panels
+  this.sectionPanels.forEach(panel => {
+    const panelTaskIndex = panel.tasks.findIndex(t => t.id === task.id);
+    if (panelTaskIndex !== -1) {
+      panel.tasks[panelTaskIndex].text = task.text.trim();
+    }
+  });
+  
+  this.saveTasks();
 }
 
 }
