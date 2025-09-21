@@ -25,7 +25,7 @@
         <div class="flex items-center gap-2" *ngIf="allowAddTask">
           <input
             type="text"
-            placeholder="+ Add task to Inbox"
+            [placeholder]="selectedTag ? '+ Add task with #' + selectedTag : '+ Add task to ' + selectedCategoryDetails.name"
             pInputText
             [(ngModel)]="taskText"
             (keyup.enter)="addTask()"
@@ -189,6 +189,7 @@
                           class="pi pi-file text-green-600"
                         ></i>
 
+
                         <!-- Task Text -->
                         <p-inplace [active]="false" [closable]="false">
                           <ng-template #display>
@@ -216,24 +217,27 @@
                           </ng-template>
                         </p-inplace>
 
-
-                        <!-- Due Date -->
-                        <span
-                          *ngIf="task.dueDate"
-                          class="ml-auto text-sm font-medium"
-                        >
-                          {{ getDisplayDate(task.dueDate) }}
-                        </span>
-
-                         <!-- Tags -->
-                        <div class="flex gap-1 ml-2">
+                        <!-- Due Date and Tags Container -->
+                        <div class="ml-auto flex items-center gap-2">
+                          <!-- Due Date -->
                           <span
-                            *ngFor="let tag of task.tags"
-                            class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            *ngIf="task.dueDate"
+                            class="text-sm font-medium"
                           >
-                            {{ tag }}
+                            {{ getDisplayDate(task.dueDate) }}
                           </span>
+
+                          <!-- Tags -->
+                          <div *ngIf="task.tags && task.tags.length > 0" class="flex gap-1">
+                            <span
+                              *ngFor="let tag of task.tags"
+                              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            >
+                              {{ tag }}
+                            </span>
+                          </div>
                         </div>
+
                       </div>
 
                       <!-- Subtask Input -->
@@ -304,23 +308,27 @@
                             </ng-template>
                           </p-inplace>
 
-                          <!-- Tags for Subtask -->
-                          <div class="flex gap-1 ml-2">
+                          <!-- Subtask Due Date and Tags Container -->
+                          <div class="ml-auto flex items-center gap-2">
+                            <!-- Subtask Due Date -->
                             <span
-                              *ngFor="let tag of sub.tags"
-                              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                              *ngIf="sub.dueDate"
+                              class="text-sm font-medium"
                             >
-                              {{ tag }}
+                              {{ getDisplayDate(sub.dueDate) }}
                             </span>
+
+                            <!-- Tags for Subtask -->
+                            <div *ngIf="sub.tags && sub.tags.length > 0" class="flex gap-1">
+                              <span
+                                *ngFor="let tag of sub.tags"
+                                class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                              >
+                                {{ tag }}
+                              </span>
+                            </div>
                           </div>
 
-                          <!-- Subtask Due Date -->
-                          <span
-                            *ngIf="sub.dueDate"
-                            class="ml-auto text-sm font-medium"
-                          >
-                            {{ getDisplayDate(sub.dueDate) }}
-                          </span>
                         </li>
                       </ul>
                     </li>
@@ -365,6 +373,7 @@
                           class="pi pi-file text-green-600"
                         ></i>
 
+
                         <!-- Task Text -->
                         <p-inplace [active]="false" [closable]="false">
                           <ng-template #display>
@@ -392,34 +401,38 @@
                           </ng-template>
                         </p-inplace>
 
-                        <!-- Tags -->
-                        <div class="flex gap-1 ml-2">
+                        <!-- Due Date and Tags Container -->
+                        <div class="ml-auto flex items-center gap-2">
+                          <!-- Due Date -->
                           <span
-                            *ngFor="let tag of task.tags"
-                            class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            *ngIf="task.dueDate"
+                            class="text-sm font-medium"
+                            [ngClass]="{
+                              'text-red-500':
+                                getDisplayDate(task.dueDate) === 'Today' ||
+                                getDisplayDate(task.dueDate) === 'Yesterday',
+                              'text-blue-500':
+                                getDisplayDate(task.dueDate) === 'Tomorrow',
+                              'text-black':
+                                getDisplayDate(task.dueDate) !== 'Today' &&
+                                getDisplayDate(task.dueDate) !== 'Tomorrow' &&
+                                getDisplayDate(task.dueDate) !== 'Yesterday'
+                            }"
                           >
-                            {{ tag }}
+                            {{ getDisplayDate(task.dueDate) }}
                           </span>
+
+                          <!-- Tags -->
+                          <div *ngIf="task.tags && task.tags.length > 0" class="flex gap-1">
+                            <span
+                              *ngFor="let tag of task.tags"
+                              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            >
+                              {{ tag }}
+                            </span>
+                          </div>
                         </div>
 
-                        <!-- Due Date -->
-                        <span
-                          *ngIf="task.dueDate"
-                          class="ml-auto text-sm font-medium"
-                          [ngClass]="{
-                            'text-red-500':
-                              getDisplayDate(task.dueDate) === 'Today' ||
-                              getDisplayDate(task.dueDate) === 'Yesterday',
-                            'text-blue-500':
-                              getDisplayDate(task.dueDate) === 'Tomorrow',
-                            'text-black':
-                              getDisplayDate(task.dueDate) !== 'Today' &&
-                              getDisplayDate(task.dueDate) !== 'Tomorrow' &&
-                              getDisplayDate(task.dueDate) !== 'Yesterday'
-                          }"
-                        >
-                          {{ getDisplayDate(task.dueDate) }}
-                        </span>
                       </div>
 
                       <!-- Subtask Input -->
@@ -490,23 +503,27 @@
                             </ng-template>
                           </p-inplace>
 
-                          <!-- Tags for Subtask -->
-                          <div class="flex gap-1 ml-2">
+                          <!-- Subtask Due Date and Tags Container -->
+                          <div class="ml-auto flex items-center gap-2">
+                            <!-- Subtask Due Date -->
                             <span
-                              *ngFor="let tag of sub.tags"
-                              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                              *ngIf="sub.dueDate"
+                              class="text-sm font-medium"
                             >
-                              {{ tag }}
+                              {{ getDisplayDate(sub.dueDate) }}
                             </span>
+
+                            <!-- Tags for Subtask -->
+                            <div *ngIf="sub.tags && sub.tags.length > 0" class="flex gap-1">
+                              <span
+                                *ngFor="let tag of sub.tags"
+                                class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                              >
+                                {{ tag }}
+                              </span>
+                            </div>
                           </div>
 
-                          <!-- Subtask Due Date -->
-                          <span
-                            *ngIf="sub.dueDate"
-                            class="ml-auto text-sm font-medium"
-                          >
-                            {{ getDisplayDate(sub.dueDate) }}
-                          </span>
                         </li>
                       </ul>
                     </li>
@@ -538,7 +555,9 @@
                 
                 <!-- Icons matching regular sections -->
                 <div class="flex gap-2">
-                  
+                  <span class="text-sm text-gray-500">
+                    {{ notSectionedPanel.tasks.length }}
+                  </span>
                   <i
                     class="pi pi-plus cursor-pointer text-blue-500"
                     (click)="notSectionedPanel.showTaskInput = !notSectionedPanel.showTaskInput"
@@ -550,9 +569,6 @@
             <ng-template #headericons>
                 <i class="pi pi-angle-down"></i>
               </ng-template>
-
-            
-
             <!-- Panel Content -->
             <div class="p-4">
               <!-- Add Task Input (conditional) -->
@@ -629,34 +645,38 @@
                           >{{ task.text }}</span
                         >
 
-                        <!-- Due Date -->
-                        <span
-                          *ngIf="task.dueDate"
-                          class="ml-auto text-sm font-medium"
-                          [ngClass]="{
-                            'text-red-500':
-                              getDisplayDate(task.dueDate) === 'Today' ||
-                              getDisplayDate(task.dueDate) === 'Yesterday',
-                            'text-blue-500':
-                              getDisplayDate(task.dueDate) === 'Tomorrow',
-                            'text-black':
-                              getDisplayDate(task.dueDate) !== 'Today' &&
-                              getDisplayDate(task.dueDate) !== 'Tomorrow' &&
-                              getDisplayDate(task.dueDate) !== 'Yesterday'
-                          }"
-                        >
-                          {{ getDisplayDate(task.dueDate) }}
-                        </span>
-
-                        <!-- Tags -->
-                        <div class="flex gap-1 ml-2">
+                        <!-- Due Date and Tags Container -->
+                        <div class="ml-auto flex items-center gap-2">
+                          <!-- Due Date -->
                           <span
-                            *ngFor="let tag of task.tags"
-                            class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            *ngIf="task.dueDate"
+                            class="text-sm font-medium"
+                            [ngClass]="{
+                              'text-red-500':
+                                getDisplayDate(task.dueDate) === 'Today' ||
+                                getDisplayDate(task.dueDate) === 'Yesterday',
+                              'text-blue-500':
+                                getDisplayDate(task.dueDate) === 'Tomorrow',
+                              'text-black':
+                                getDisplayDate(task.dueDate) !== 'Today' &&
+                                getDisplayDate(task.dueDate) !== 'Tomorrow' &&
+                                getDisplayDate(task.dueDate) !== 'Yesterday'
+                            }"
                           >
-                            {{ tag }}
+                            {{ getDisplayDate(task.dueDate) }}
                           </span>
+
+                          <!-- Tags -->
+                          <div *ngIf="task.tags && task.tags.length > 0" class="flex gap-1">
+                            <span
+                              *ngFor="let tag of task.tags"
+                              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            >
+                              {{ tag }}
+                            </span>
+                          </div>
                         </div>
+
                       </div>
 
                       <!-- Subtask List -->
@@ -750,34 +770,38 @@
                           >{{ task.text }}</span
                         >
 
-                        <!-- Due Date -->
-                        <span
-                          *ngIf="task.dueDate"
-                          class="ml-auto text-sm font-medium"
-                          [ngClass]="{
-                            'text-red-500':
-                              getDisplayDate(task.dueDate) === 'Today' ||
-                              getDisplayDate(task.dueDate) === 'Yesterday',
-                            'text-blue-500':
-                              getDisplayDate(task.dueDate) === 'Tomorrow',
-                            'text-black':
-                              getDisplayDate(task.dueDate) !== 'Today' &&
-                              getDisplayDate(task.dueDate) !== 'Tomorrow' &&
-                              getDisplayDate(task.dueDate) !== 'Yesterday'
-                          }"
-                        >
-                          {{ getDisplayDate(task.dueDate) }}
-                        </span>
-
-                        <!-- Tags -->
-                        <div class="flex gap-1 ml-2">
+                        <!-- Due Date and Tags Container -->
+                        <div class="ml-auto flex items-center gap-2">
+                          <!-- Due Date -->
                           <span
-                            *ngFor="let tag of task.tags"
-                            class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            *ngIf="task.dueDate"
+                            class="text-sm font-medium"
+                            [ngClass]="{
+                              'text-red-500':
+                                getDisplayDate(task.dueDate) === 'Today' ||
+                                getDisplayDate(task.dueDate) === 'Yesterday',
+                              'text-blue-500':
+                                getDisplayDate(task.dueDate) === 'Tomorrow',
+                              'text-black':
+                                getDisplayDate(task.dueDate) !== 'Today' &&
+                                getDisplayDate(task.dueDate) !== 'Tomorrow' &&
+                                getDisplayDate(task.dueDate) !== 'Yesterday'
+                            }"
                           >
-                            {{ tag }}
+                            {{ getDisplayDate(task.dueDate) }}
                           </span>
+
+                          <!-- Tags -->
+                          <div *ngIf="task.tags && task.tags.length > 0" class="flex gap-1">
+                            <span
+                              *ngFor="let tag of task.tags"
+                              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                            >
+                              {{ tag }}
+                            </span>
+                          </div>
                         </div>
+
                       </div>
 
                       <!-- Subtask List -->
@@ -906,6 +930,7 @@
                           class="pi pi-file text-green-600"
                         ></i>
 
+
             <!-- Editable Task Text -->
             <input
               *ngIf="task === selectedTask && allowEditing"
@@ -931,30 +956,37 @@
               {{ task.text }}
             </span>
 
-            <span
-              *ngIf="task.dueDate"
-              class="ml-auto text-sm font-medium"
-              [ngClass]="{
-                'text-red-500':
-                  getDisplayDate(task.dueDate) === 'Today' ||
-                  getDisplayDate(task.dueDate) === 'Yesterday',
-                'text-blue-500': getDisplayDate(task.dueDate) === 'Tomorrow',
-                'text-black':
-                  getDisplayDate(task.dueDate) !== 'Today' &&
-                  getDisplayDate(task.dueDate) !== 'Tomorrow' &&
-                  getDisplayDate(task.dueDate) !== 'Yesterday'
-              }"
-            >
-              {{ getDisplayDate(task.dueDate) }}
-            </span>
-          </div>
+            <!-- Due Date and Tags Container -->
+            <div class="ml-auto flex items-center gap-2">
+              <!-- Due Date -->
+              <span
+                *ngIf="task.dueDate"
+                class="text-sm font-medium"
+                [ngClass]="{
+                  'text-red-500':
+                    getDisplayDate(task.dueDate) === 'Today' ||
+                    getDisplayDate(task.dueDate) === 'Yesterday',
+                  'text-blue-500': getDisplayDate(task.dueDate) === 'Tomorrow',
+                  'text-black':
+                    getDisplayDate(task.dueDate) !== 'Today' &&
+                    getDisplayDate(task.dueDate) !== 'Tomorrow' &&
+                    getDisplayDate(task.dueDate) !== 'Yesterday'
+                }"
+              >
+                {{ getDisplayDate(task.dueDate) }}
+              </span>
 
-          <div class="flex gap-1">
-            <span
-              *ngFor="let tag of task.tags"
-              class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
-              >{{ tag }}</span
-            >
+              <!-- Tags -->
+              <div *ngIf="task.tags && task.tags.length > 0" class="flex gap-1">
+                <span
+                  *ngFor="let tag of task.tags"
+                  class="px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded-full"
+                >
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+
           </div>
 
           <div *ngIf="task.showSubtaskInput" class="flex gap-2 mt-1">
@@ -1081,7 +1113,7 @@
             }"
           />
           <span
-            *ngIf="selectedTask !== selectedTask"
+            *ngIf="selectedTask !== selectedTask && selectedTask.text"
             (dblclick)="selectTask(selectedTask)"
             class="text-black text-xl font-semibold"
             >{{ selectedTask.text }}</span

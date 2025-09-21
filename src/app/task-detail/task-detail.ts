@@ -1,16 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SplitterModule } from 'primeng/splitter';
-
-export interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  priority?: 'high' | 'medium' | 'low' | 'none';
-  dueDate?: string | null;
-  description?: string;
-}
+import { TaskService, Task } from '../services/task.service';
 
 @Component({
   selector: 'app-task-detail',
@@ -23,7 +15,7 @@ export class TaskDetail implements OnInit {
   taskId: string | null = null;
   task: Task | null = null;
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private router: Router, private taskService: TaskService) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -39,7 +31,7 @@ export class TaskDetail implements OnInit {
       }
     });
   }
-  getDisplayDate(selectedDate: string | null | undefined): string {
+  getDisplayDate(selectedDate: string | undefined): string {
   if (!selectedDate) return '';
 
   const dateObj = new Date(selectedDate);
@@ -62,5 +54,34 @@ export class TaskDetail implements OnInit {
     year: '2-digit',
   }).format(dateObj);
 }
+
+  getCreatedDate(): string {
+    // Since createdAt is not in the Task interface, return a placeholder
+    return 'Unknown';
+  }
+
+  goBack() {
+    this.router.navigate(['/home']);
+  }
+
+  toggleTaskStatus() {
+    if (this.task) {
+      if (!this.task.completed) {
+        // Mark as completed - use the service method that handles list assignment
+        this.taskService.completeTask(this.task.id);
+        this.task.completed = true;
+        this.task.list = 'completed';
+      } else {
+        // Mark as pending - manually update to inbox
+        const updatedTask = { 
+          ...this.task, 
+          completed: false,
+          list: 'inbox'
+        };
+        this.taskService.updateTask(updatedTask);
+        this.task = updatedTask;
+      }
+    }
+  }
 
 }

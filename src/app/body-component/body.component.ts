@@ -12,6 +12,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TaskService } from '../services/task.service';
 import { CategoryService } from '../services/category.service';
+import { TagsService } from '../services/tags.service';
 import { Popup } from '../popup/popup';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
@@ -102,6 +103,7 @@ export class BodyComponent {
   selectedSubtaskDueDate: Date | null = null;
   notSectionedPanel: SectionPanel | null = null;
   notSectionedPanelCollapsed: boolean = false;
+  selectedTag: string | null = null;
 
 
   ngOnInit() {
@@ -136,6 +138,7 @@ manageNotSectionedPanel() {
       categoryId: this.selectedCategoryDetails.id
     };
     // Keep tasks in main list for normal display when no sections
+    // this.tasks = []; // Don't clear main tasks list
   } else if (!hasSections && this.notSectionedPanel) {
     // Remove Not Sectioned panel - tasks are already in main list
     this.notSectionedPanel = null;
@@ -166,6 +169,7 @@ manageNotSectionedPanel() {
   constructor(
     private TaskService: TaskService,
     private CategoryService: CategoryService,
+    private TagsService: TagsService,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {
@@ -192,6 +196,64 @@ manageNotSectionedPanel() {
     this.CategoryService.categoryListSubject.subscribe((cats) => {
       this.customCategories = cats;
     });
+
+    // Subscribe to selected tag changes
+    this.TagsService.selectedTag$.subscribe((tag) => {
+      this.selectedTag = tag;
+      this.applyTagFilter();
+    });
+
+    // Subscribe to all tags changes to refresh tasks when tags are deleted
+    this.TagsService.allTags$.subscribe(() => {
+      // Reload tasks from localStorage to reflect tag deletions
+      const savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        this.allTasks = JSON.parse(savedTasks);
+        // Re-apply current filters
+        if (this.selectedCategoryDetails && this.selectedCategoryDetails.id) {
+          this.getTasksByCategoryId(this.selectedCategoryDetails.id);
+        }
+        // Force change detection
+        this.cd.detectChanges();
+      }
+    });
+
+    // Subscribe to tasks updated events (when tags are removed from tasks)
+    this.TagsService.tasksUpdated$.subscribe(() => {
+      // Reload tasks from localStorage to reflect tag deletions
+      const savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        this.allTasks = JSON.parse(savedTasks);
+        // Re-apply current filters
+        if (this.selectedCategoryDetails && this.selectedCategoryDetails.id) {
+          this.getTasksByCategoryId(this.selectedCategoryDetails.id);
+        }
+        // Force change detection
+        this.cd.detectChanges();
+      }
+    });
+
+    // Update tags from existing tasks
+    this.TagsService.updateTagsFromTasks(this.allTasks);
+
+    // Subscribe to live task updates from TaskService for real-time synchronization
+    this.TaskService.tasks$.subscribe(updatedTasks => {
+      this.allTasks = updatedTasks;
+      this.sectionTasks = this.allTasks.filter(
+        (t) => t.list === 'custom' && !t.completed
+      );
+      
+      // Re-apply current filters to refresh the display
+      if (this.selectedCategoryDetails && this.selectedCategoryDetails.id) {
+        this.getTasksByCategoryId(this.selectedCategoryDetails.id);
+      }
+      
+      // Update tags from tasks
+      this.TagsService.updateTagsFromTasks(this.allTasks);
+      
+      // Force change detection
+      this.cd.detectChanges();
+    });
   }
 
   //popup s priority update krne k lie
@@ -205,9 +267,11 @@ manageNotSectionedPanel() {
 
   //task categorize based on id
   getTasksByCategoryId(id: number) {
+    let filteredTasks: Task[] = [];
+
     if (id === 1) {
       // Today
-      this.tasks = this.allTasks.filter(
+      filteredTasks = this.allTasks.filter(
         (t) => !t.completed && t.list === 'today'
       );
       this.allowAddTask = true;
@@ -215,7 +279,7 @@ manageNotSectionedPanel() {
       this.allowEditing = true;
     } else if (id === 2) {
       // Next 7 Days
-      this.tasks = this.allTasks.filter(
+      filteredTasks = this.allTasks.filter(
         (t) => !t.completed && t.list === 'next7Days'
       );
       this.allowAddTask = true;
@@ -223,7 +287,7 @@ manageNotSectionedPanel() {
       this.allowEditing = true;
     } else if (id === 3) {
       // Inbox
-      this.tasks = this.allTasks.filter(
+      filteredTasks = this.allTasks.filter(
         (t) => !t.completed && t.list === 'inbox'
       );
       this.allowAddTask = true;
@@ -231,13 +295,13 @@ manageNotSectionedPanel() {
       this.allowEditing = true;
     } else if (id === 4) {
       // Completed
-      this.tasks = this.allTasks.filter((t) => t.completed);
+      filteredTasks = this.allTasks.filter((t) => t.completed);
       this.allowAddTask = false;
       this.allowPriorityFeature = false;
       this.allowEditing = false;
     } else {
       // Custom category
-      this.tasks = this.allTasks.filter(
+      filteredTasks = this.allTasks.filter(
         (t) => !t.completed && t.categoryId === id
       );
       this.allowAddTask = true;
@@ -245,6 +309,20 @@ manageNotSectionedPanel() {
       this.allowEditing = true;
     }
 
+    // Apply tag filter if a tag is selected
+    if (this.selectedTag) {
+      filteredTasks = this.filterTasksByTag(filteredTasks, this.selectedTag);
+    }
+
+    // Filter out tasks with empty text or "Untitled Task", but allow tasks with tags
+    filteredTasks = filteredTasks.filter(task => 
+      (task.text && 
+       task.text.trim() !== '' && 
+       task.text.trim() !== 'Untitled Task') ||
+      (task.tags && task.tags.length > 0)
+    );
+
+    this.tasks = filteredTasks;
     this.selectedCategoryDetails = this.CategoryService.getCategoryDetails(id);
     this.manageNotSectionedPanel();
   }
@@ -279,6 +357,7 @@ manageNotSectionedPanel() {
       pinned: false,
       list: this.selectedCategory,
       categoryId: this.selectedCategoryDetails.id,
+      tags: this.selectedTag ? [this.selectedTag] : [],
     };
 
     // Due date 
@@ -318,6 +397,8 @@ manageNotSectionedPanel() {
     
     this.getTasksByCategoryId(this.selectedCategoryDetails.id);
     this.taskText = '';
+    // Keep the selected tag so user stays in the filtered view
+    // The tag will only be cleared when user explicitly clicks "Clear Filter" or selects a different tag
     this.saveTasks();
   }
 
@@ -460,6 +541,7 @@ private removeTask(list: Task[], taskToRemove: Task) {
         priority: 'none',
         subtasks: [],
         type: 'task',
+        tags: [],
       });
       panelTask.showSubtaskInput = false;
     } else {
@@ -471,6 +553,7 @@ private removeTask(list: Task[], taskToRemove: Task) {
         priority: 'none',
         subtasks: [],
         type: 'task',
+        tags: [],
       });
       task.showSubtaskInput = false;
     }
@@ -543,6 +626,9 @@ private removeTask(list: Task[], taskToRemove: Task) {
   saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(this.allTasks));
     localStorage.setItem('sectionPanels', JSON.stringify(this.sectionPanels));
+    
+    // Update tags from all tasks
+    this.TagsService.updateTagsFromTasks(this.allTasks);
   }
 
   showTagsDialog() {
@@ -551,23 +637,52 @@ private removeTask(list: Task[], taskToRemove: Task) {
 
   //to update tags
   updateTaskTags(tags: string[]) {
+    console.log('updateTaskTags called with:', tags);
+    console.log('selectedTask:', this.selectedTask);
+    
     if (this.selectedTask) {
+      // Update the selected task's tags
       this.selectedTask.tags = tags;
+      
+      // Also update the task in allTasks array to ensure consistency
+      const taskIndex = this.allTasks.findIndex(task => task.id === this.selectedTask.id);
+      if (taskIndex !== -1) {
+        this.allTasks[taskIndex].tags = tags;
+      }
+      
+      console.log('Updated task tags:', this.selectedTask);
     } else {
+      // Create a new task with tags
       const tempTask: Task = {
         id: this.generateId(),
-        text: this.taskText.trim() || 'Untitled Task',
+        text: this.taskText.trim() || '', // Allow empty text if only tags are added
         completed: false,
         priority: this.selectedPriority,
         list: this.selectedCategory,
+        categoryId: this.selectedCategoryDetails.id,
         tags: tags,
       };
       this.allTasks.push(tempTask);
-      this.getTasksByCategoryId(this.selectedCategoryDetails.id);
+      this.taskText = ''; // Clear the input field
+      console.log('Created new task with tags:', tempTask);
     }
 
+    // Save tasks and refresh the display
     this.saveTasks();
+    this.getTasksByCategoryId(this.selectedCategoryDetails.id);
     this.showTags = false;
+  }
+
+  // Manual refresh method for debugging
+  refreshTasks() {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+      this.allTasks = JSON.parse(savedTasks);
+      if (this.selectedCategoryDetails && this.selectedCategoryDetails.id) {
+        this.getTasksByCategoryId(this.selectedCategoryDetails.id);
+      }
+      this.cd.detectChanges();
+    }
   }
 
   //setting duedate
@@ -842,6 +957,7 @@ private removeTask(list: Task[], taskToRemove: Task) {
     list: 'custom',
     categoryId: this.selectedCategoryDetails.id,
     dueDate: null,
+    tags: this.selectedTag ? [this.selectedTag] : [],
   };
 
   panel.tasks.push(newTask);
@@ -883,6 +999,7 @@ addTaskToNotSectioned() {
     pinned: false,
     list: this.selectedCategory,
     categoryId: this.selectedCategoryDetails.id,
+    tags: this.selectedTag ? [this.selectedTag] : [],
   };
 
   // Due date logic
@@ -943,6 +1060,32 @@ updateTaskText(task: Task) {
   });
   
   this.saveTasks();
+}
+
+// Tag filtering methods
+filterTasksByTag(tasks: Task[], tag: string): Task[] {
+  return tasks.filter(task => {
+    // Check if task has the tag
+    if (task.tags && task.tags.some(t => t.toLowerCase() === tag.toLowerCase())) {
+      return true;
+    }
+    
+    // Check if any subtask has the tag
+    if (task.subtasks && task.subtasks.some(subtask => 
+      subtask.tags && subtask.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+    )) {
+      return true;
+    }
+    
+    return false;
+  });
+}
+
+applyTagFilter() {
+  // Re-apply the current category filter with tag filtering
+  if (this.selectedCategoryDetails && this.selectedCategoryDetails.id) {
+    this.getTasksByCategoryId(this.selectedCategoryDetails.id);
+  }
 }
 
 }

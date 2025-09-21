@@ -1,30 +1,181 @@
-<p-splitter style="height: 100vh; border: none;" [minSizes]="[25, 40]" class="!bg-white">
-  <!-- Left Panel: Task Names -->
-  <ng-template pTemplate="panel">
-    <div class="w-1/3 border-r p-2 ml-70 mt-40">
-    <h2 class="text-3xl font-bold text-black">{{ task?.text }}</h2>
-  </div>
-  </ng-template>
-
-  <!-- Right Panel: Task Details -->
-  <ng-template pTemplate="panel">
-    <div class="p-4">
-      <h2 class="text-2xl font-bold">Task Details</h2>
-
-      <ng-container *ngIf="task; else notFound">
-        <p class="text-black"><b>Title:</b> {{ task.text }}</p>
-        <p class="text-black"><b>Priority:</b> {{ task.priority }}</p>
-        <p class="text-black"><b>Due Date:</b> {{ getDisplayDate(task.dueDate) || 'No Due Date' }}</p>
-        <p class="text-black"><b>Status:</b> {{ task.completed ? 'Completed' : 'Pending' }}</p>
-        <p class="text-black"><b>Description:</b> {{ task.description || 'No Description' }}</p>
-      </ng-container>
-
-      <ng-template #notFound>
-        <p class="text-red-500">Task not found!</p>
-      </ng-template>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <button 
+          (click)="goBack()" 
+          class="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          <span>Back to Tasks</span>
+        </button>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span class="text-sm text-gray-500">Task ID: {{ taskId }}</span>
+      </div>
     </div>
-  </ng-template>
-</p-splitter>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-6xl mx-auto px-6 py-8">
+    <ng-container *ngIf="task; else notFound">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Panel: Task Title and Main Info -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <div class="flex items-start justify-between mb-6">
+              <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ task.text }}</h1>
+                
+                <!-- Status Badge -->
+                <div class="flex items-center space-x-4 mb-6">
+                  <span 
+                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                    [ngClass]="task.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                    (click)="toggleTaskStatus()">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path *ngIf="task.completed" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      <path *ngIf="!task.completed" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    {{ task.completed ? 'Completed' : 'Pending' }}
+                  </span>
+                  
+                  <!-- Priority Badge -->
+                  <span 
+                    *ngIf="task.priority && task.priority !== 'none'"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                    [ngClass]="{
+                      'bg-red-100 text-red-800': task.priority === 'high',
+                      'bg-yellow-100 text-yellow-800': task.priority === 'medium',
+                      'bg-green-100 text-green-800': task.priority === 'low'
+                    }">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
+                    </svg>
+                    {{ task.priority | titlecase }} Priority
+                  </span>
+                </div>
+
+                <!-- Description -->
+                <div *ngIf="task.description" class="mb-6">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+                  <p class="text-gray-700 leading-relaxed">{{ task.description }}</p>
+                </div>
+
+                <!-- Tags -->
+                <div *ngIf="task.tags && task.tags.length > 0" class="mb-6">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">Tags</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span 
+                      *ngFor="let tag of task.tags"
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      #{{ tag }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Task Details -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-bold text-gray-900">Task Details</h2>
+              <button 
+                (click)="toggleTaskStatus()"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                [ngClass]="task.completed ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-green-100 text-green-800 hover:bg-green-200'">
+                {{ task.completed ? 'Mark Pending' : 'Mark Complete' }}
+              </button>
+            </div>
+            
+            <div class="space-y-4">
+              <!-- Due Date -->
+              <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-500">Due Date</p>
+                  <p class="text-sm text-gray-900">
+                    {{ getDisplayDate(task.dueDate) || 'No Due Date' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Created Date -->
+              <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-500">Created</p>
+                  <p class="text-sm text-gray-900">
+                    {{ getCreatedDate() }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Category -->
+              <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-500">Category</p>
+                  <p class="text-sm text-gray-900">{{ task.list || 'Inbox' }}</p>
+                </div>
+              </div>
+
+              <!-- Task ID -->
+              <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-500">Task ID</p>
+                  <p class="text-sm text-gray-900 font-mono">{{ taskId }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #notFound>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 6.291A7.962 7.962 0 0012 5c-2.34 0-4.29 1.009-5.824 2.709"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Task not found</h3>
+        <p class="mt-1 text-sm text-gray-500">The task you're looking for doesn't exist or has been deleted.</p>
+        <div class="mt-6">
+          <button 
+            (click)="goBack()" 
+            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Tasks
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
 
 
 

@@ -1,16 +1,32 @@
-<p-dialog header="Add Tags" [(visible)]="display" [modal]="true" [closable]="true">
-  <p-autoComplete 
-    [(ngModel)]="selectedTags"
-    [suggestions]="filteredTags"
-    (completeMethod)="filterTags($event)"
-    (onSelect)="onTagSelect($event)"
-    [multiple]="true"
-    [forceSelection]="false"
-    placeholder="Type in a tag">
-  </p-autoComplete>
+<p-dialog header="Add Tags" [(visible)]="display" [modal]="true" [closable]="true" styleClass="add-tags-dialog">
+  <div class="mb-3">
+    <p-autoComplete 
+      [(ngModel)]="inputValue"
+      [suggestions]="filteredTags"
+      (completeMethod)="filterTags($event)"
+      (onSelect)="onTagSelect($event)"
+      (onUnselect)="onTagUnselect($event)"
+      [multiple]="false"
+      [forceSelection]="false"
+      placeholder="Type in a tag"
+      styleClass="white-input">
+    </p-autoComplete>
+  </div>
+
+  <!-- Display selected tags -->
+  <div *ngIf="selectedTags.length > 0" class="mb-3">
+    <div class="flex flex-wrap gap-2">
+      <span 
+        *ngFor="let tag of selectedTags; let i = index" 
+        class="px-2 py-1 bg-gray-200 text-gray-800 rounded-full text-sm flex items-center gap-1">
+        {{ tag }}
+        <button (click)="removeTag(i)" class="text-gray-600 hover:text-red-600">×</button>
+      </span>
+    </div>
+  </div>
 
   <div class="flex justify-end gap-2 mt-3">
-    <p-button label="Cancel" class="p-button-text" (click)="cancel()"></p-button>
-    <p-button label="OK" (click)="saveTags()"></p-button>
+    <p-button label="Cancel" class="cancel-btn" (click)="cancel()"></p-button>
+    <p-button label="OK" class="ok-btn" (click)="saveTags()"></p-button>
   </div>
 </p-dialog>
