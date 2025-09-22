@@ -1,0 +1,80 @@
+::ng-deep .custom-btn .p-button {
+  background: transparent !important; 
+  border: none !important;           
+  box-shadow: none !important;    
+  padding: 0.5rem !important;        
+  color: black !important;
+}
+
+::ng-deep .custom-btn .p-button .p-button-icon {
+  font-size: 1.2rem;
+  color: black !important;
+}
+
+::ng-deep .custom-btn .p-button:hover {
+  background-color: transparent !important;
+  color: #555 !important;
+}
+
+::ng-deep .p-button-label {
+  font-weight: 400 !important; /* normal text */
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Custom confirmation dialog styling */
+::ng-deep .custom-confirm-dialog {
+  background: white !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-header {
+  background: white !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  color: black !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-content {
+  background: white !important;
+  color: black !important;
+  padding: 1.5rem !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-footer {
+  background: white !important;
+  border-top: 1px solid #e5e7eb !important;
+  padding: 1rem 1.5rem !important;
+}
+
+::ng-deep .custom-confirm-dialog .p-confirm-dialog-icon {
+  color: #f59e0b !important; /* amber color for warning icon */
+}
+
+::ng-deep .custom-confirm-dialog .p-dialog-mask {
+  background-color: rgba(0, 0, 0, 0.4) !important; /* semi-transparent dark overlay */
+}
+
+/* Collapsible arrow rotation animation */
+.rotate-180 {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.pi-angle-down {
+  transition: transform 0.2s ease-in-out;
+}
+
+

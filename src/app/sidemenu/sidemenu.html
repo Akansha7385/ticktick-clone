@@ -1,0 +1,76 @@
+<div 
+  class="h-screen w-[3vw] sm:w-5 md:w-5 lg:w-10 
+         !bg-gray-100 flex flex-col justify-between items-center shadow-md
+         transition-all duration-300">
+
+  <!-- Top Buttons -->
+  <div class="flex flex-col space-y-2 py-3">
+    <button 
+      pButton 
+      icon="pi pi-check"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-check',
+        '!text-gray-500': selectedIcon !== 'pi-check'
+      }"
+      (click)="selectedIcon = 'pi-check'"
+      pTooltip="All Tasks" tooltipPosition="top">
+    </button>
+
+    <!-- <button 
+      pButton 
+      icon="pi pi-calendar"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-calendar',
+        '!text-gray-500': selectedIcon !== 'pi-calendar'
+      }"
+      (click)="selectedIcon = 'pi-calendar'">
+    </button> -->
+
+    <button 
+      pButton 
+      icon="pi pi-search"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-search',
+        '!text-gray-500': selectedIcon !== 'pi-search'
+      }"
+      (click)="selectedIcon = 'pi-search'; openSearchDialog()"
+      pTooltip="Search" tooltipPosition="top">
+    </button>
+    <app-search-page [(visible)]="searchVisible" (visibleChange)="onSearchClose()"></app-search-page>
+  </div>
+
+  <!-- Bottom Buttons -->
+  <div class="flex flex-col space-y-2 mt-0 pb-0">
+    <button 
+      pButton 
+      icon="pi pi-refresh"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-refresh',
+        '!text-gray-500': selectedIcon !== 'pi-refresh'
+      }"
+      (click)="selectAndReload()"
+      pTooltip="Refresh" tooltipPosition="top">
+    </button>
+     
+
+    <button 
+      pButton 
+      icon="pi pi-question-circle"
+      class="p-button-rounded p-button-text"
+      [ngClass]="{
+        '!text-blue-500': selectedIcon === 'pi-question-circle',
+        '!text-gray-500': selectedIcon !== 'pi-question-circle'
+      }"
+      (click)="selectedIcon = 'pi-question-circle'; openMoreDialog()"
+      pTooltip="More" tooltipPosition="top">
+    </button>
+
+     <app-more [(visible)]="moreVisible" (visibleChange)="onMoreClose()" (shortcutClick)="openShortcutDialog()"></app-more>
+
+    <app-shortcut [(visible)]="shortcutVisible"></app-shortcut>
+  </div>
+</div>

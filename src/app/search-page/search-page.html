@@ -1,0 +1,41 @@
+<p-dialog 
+  [(visible)]="visible" 
+  [modal]="true" 
+  [style]="{ width: '30rem', borderRadius: '1rem', padding: '0' }" 
+  [closable]="false"
+>
+  <div class="p-4">
+    <!-- Search Bar with Close Icon -->
+    <div class="flex items-center border-b border-gray-300 mb-4 rounded-md px-2 py-1">
+      <i class="pi pi-search text-xl mr-2 text-gray-400"></i>
+      <input 
+        type="text"
+        pInputText
+        placeholder="Search"
+        [(ngModel)]="query"
+        (input)="search()"
+        class="w-full text-black text-sm focus:outline-none focus:ring-0"
+      />
+      <i 
+        class="pi pi-times text-xl ml-2 cursor-pointer text-gray-500" 
+        (click)="closeDialog()"
+      ></i>
+    </div>
+
+    <!-- Results -->
+   <ul *ngIf="results.length > 0" class="text-black divide-y divide-gray-200">
+  <li *ngFor="let task of results" class="py-2 text-sm flex items-center justify-between hover:bg-gray-50 cursor-pointer transition-colors" (click)="openTaskInNewTab(task)">
+    <div class="flex items-center flex-1">
+      <input type="checkbox" [(ngModel)]="task.completed" (change)="toggleComplete(task); $event.stopPropagation()" class="mr-2"/>
+      <span class="flex-1">{{ task.text }} <span class="text-gray-500 text-xs">({{ task.list }})</span></span>
+    </div>
+    <i class="pi pi-external-link text-gray-400 text-xs ml-2"></i>
+  </li>
+</ul>
+
+
+    <div *ngIf="results.length === 0 && query" class="text-gray-400 text-sm text-center py-4">
+      No tasks found
+    </div>
+  </div>
+</p-dialog>

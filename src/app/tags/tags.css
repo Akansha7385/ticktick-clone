@@ -1,0 +1,107 @@
+/* Add Tags Dialog Styling */
+
+/* Input field styling - white background, black text */
+::ng-deep .p-autocomplete .p-inputtext {
+  background: white !important;
+  color: black !important;
+  border: 1px solid #d1d5db !important;
+}
+
+::ng-deep .p-autocomplete .p-inputtext:focus {
+  background: white !important;
+  color: black !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+::ng-deep .p-autocomplete .p-inputtext::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Dialog styling */
+::ng-deep .p-dialog {
+  background: white !important;
+}
+
+::ng-deep .p-dialog-header {
+  background: white !important;
+  color: black !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+::ng-deep .p-dialog-content {
+  background: white !important;
+  color: black !important;
+}
+
+::ng-deep .p-dialog-footer {
+  background: white !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Button styling - override PrimeNG defaults completely */
+::ng-deep .add-tags-dialog .cancel-btn.p-button {
+  background: #dc2626 !important; /* Red background for Cancel */
+  color: white !important;
+  border: 1px solid #dc2626 !important;
+  box-shadow: none !important;
+  background-color: #dc2626 !important;
+}
+
+::ng-deep .add-tags-dialog .cancel-btn.p-button:hover {
+  background: #b91c1c !important; /* Darker red on hover */
+  border-color: #b91c1c !important;
+  box-shadow: none !important;
+  background-color: #b91c1c !important;
+}
+
+::ng-deep .add-tags-dialog .cancel-btn.p-button:focus {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  box-shadow: none !important;
+  background-color: #dc2626 !important;
+}
+
+::ng-deep .add-tags-dialog .ok-btn.p-button {
+  background: #2563eb !important; /* Blue background for OK */
+  color: white !important;
+  border: 1px solid #2563eb !important;
+  box-shadow: none !important;
+  background-color: #2563eb !important;
+}
+
+::ng-deep .add-tags-dialog .ok-btn.p-button:hover {
+  background: #1d4ed8 !important; /* Darker blue on hover */
+  border-color: #1d4ed8 !important;
+  box-shadow: none !important;
+  background-color: #1d4ed8 !important;
+}
+
+::ng-deep .add-tags-dialog .ok-btn.p-button:focus {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  box-shadow: none !important;
+  background-color: #2563eb !important;
+}
+
+/* Autocomplete dropdown styling */
+::ng-deep .p-autocomplete-panel {
+  background: white !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .p-autocomplete-items .p-autocomplete-item {
+  color: black !important;
+  background: white !important;
+}
+
+::ng-deep .p-autocomplete-items .p-autocomplete-item:hover {
+  background: #f3f4f6 !important;
+  color: black !important;
+}
+
+::ng-deep .p-autocomplete-items .p-autocomplete-item.p-highlight {
+  background: #3b82f6 !important;
+  color: white !important;
+}

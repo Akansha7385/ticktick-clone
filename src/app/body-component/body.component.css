@@ -1,0 +1,58 @@
+::ng-deep .p-checkbox .p-checkbox-box {
+  background-color: white !important; /* bg white */
+  border: 1px solid #000 !important; /* black border */
+}
+
+::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
+  background-color: white !important; /* checked hone par bhi bg white */
+  border: 1px solid #000 !important;
+}
+
+::ng-deep .p-checkbox .p-checkbox-box .p-checkbox-icon {
+  color: black !important; /* tick black */
+}
+
+:host ::ng-deep .p-splitter .p-splitter-gutter {
+  background-color: #dfe0e0 !important;
+}
+
+::ng-deep .p-inplace .p-inplace-display {
+  background-color: white !important; /* bg white */
+  color: black !important;            /* text black */
+  box-shadow: none !important;        /* hover shadow remove */
+}
+
+::ng-deep .p-inplace:hover .p-inplace-display {
+  background-color: white !important; /* hover bg remove */
+  color: black !important;            /* hover text color */
+  box-shadow: none !important;        /* hover shadow remove */
+}
+
+/* Scrollbar hide while keeping scroll functionality */
+.hide-scrollbar {
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; 
+}
+
+::ng-deep .p-inplace .p-inplace-content input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: white !important;
+  color: black !important;
+}
+
+/* Ensure panel toggle arrow is visible */
+::ng-deep .p-panel .p-panel-header .p-panel-header-icon {
+  color: black !important;
+  font-size: 1rem !important;
+}
+
+::ng-deep .p-panel .p-panel-header .p-panel-header-icon:hover {
+  color: #666 !important;
+}
+
