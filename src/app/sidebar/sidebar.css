@@ -67,4 +67,14 @@
   background-color: rgba(0, 0, 0, 0.4) !important; /* semi-transparent dark overlay */
 }
 
+/* Collapsible arrow rotation animation */
+.rotate-180 {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.pi-angle-down {
+  transition: transform 0.2s ease-in-out;
+}
+
 

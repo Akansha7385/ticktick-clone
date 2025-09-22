@@ -18,7 +18,7 @@
             (onSideBarToggle)="sidebarVisible = !sidebarVisible"
           />
           <h1 class="text-black text-2xl font-semibold pl-4">
-            {{ selectedCategoryDetails.name }}
+            {{ getDisplayTitle() }}
           </h1>
         </div>
 
@@ -49,6 +49,8 @@
 
         <app-task-menu
           #menu
+          [taskType]="selectedTask?.type || 'task'"
+          [isInTrash]="selectedCategoryDetails.id === 5"
           (pinTask)="pinTask()"
           (deleteTask)="deleteSelectedTask()"
           (setPriority)="setPriority($event)"
@@ -60,6 +62,8 @@
           (setDueDate)="setDueDate($event)"
           (moveToList)="onMoveToList($event)"
           (duplicateTask)="duplicateTask()"
+          (restoreTask)="restoreTask()"
+          (permanentlyDeleteTask)="permanentlyDeleteTask()"
         >
         </app-task-menu>
 
@@ -1078,6 +1082,7 @@
                 </span>
                 <ng-template #showText>Set Due Date</ng-template>
               </button>
+
             </div>
 
             <button
@@ -1157,6 +1162,8 @@
           </button>
           <app-task-menu
             #rightMenu
+            [taskType]="selectedTask?.type || 'task'"
+            [isInTrash]="selectedCategoryDetails.id === 5"
             (pinTask)="pinTask()"
             (deleteTask)="deleteSelectedTask()"
             (setPriority)="setPriority($event)"
@@ -1168,10 +1175,13 @@
             (setDueDate)="setDueDate($event)"
             (moveToList)="onMoveToList($event)"
             (duplicateTask)="duplicateTask()"
+            (restoreTask)="restoreTask()"
+            (permanentlyDeleteTask)="permanentlyDeleteTask()"
           >
           </app-task-menu>
         </div>
       </div>
     </ng-template>
   </p-splitter>
+
 </div>

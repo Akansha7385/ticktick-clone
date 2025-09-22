@@ -3,8 +3,8 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TagsService {
-  private allTagsSubject = new BehaviorSubject<string[]>([]);
-  allTags$ = this.allTagsSubject.asObservable();
+  private allTagsSubject = new BehaviorSubject<string[]>([]);//stores the list of all tags
+  allTags$ = this.allTagsSubject.asObservable(); //observable version of allTagsSubject
 
   private selectedTagSubject = new BehaviorSubject<string | null>(null);
   selectedTag$ = this.selectedTagSubject.asObservable();
@@ -150,7 +150,7 @@ export class TagsService {
     localStorage.setItem('allTags', JSON.stringify(this.allTags));
   }
 
-  // Manually trigger tasks update event
+  // Manually trigger tasks update event nk,
   triggerTasksUpdate(): void {
     this.tasksUpdatedSubject.next(true);
   }

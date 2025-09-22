@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
@@ -10,8 +10,10 @@ import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
   templateUrl: './task-menu.html',
   styleUrls: ['./task-menu.scss'],
 })
-export class TaskMenu {
+export class TaskMenu implements OnChanges {
   @ViewChild('cm') cm!: ContextMenu;
+  @Input() taskType: 'task' | 'note' = 'task';
+  @Input() isInTrash: boolean = false;
   @Output() deleteTask = new EventEmitter<void>();
   @Output() setPriority = new EventEmitter< 
     'high' | 'medium' | 'low' | 'none'
@@ -25,15 +27,41 @@ export class TaskMenu {
 @Output() setDueDate = new EventEmitter<Date>();
   @Output() pinTask = new EventEmitter<void>();
   @Output() moveToList = new EventEmitter<string>();
+  @Output() restoreTask = new EventEmitter<void>();
+  @Output() permanentlyDeleteTask = new EventEmitter<void>();
 
 
   items: MenuItem[] = [];
 
   ngOnInit() {
-    this.buildMenu('task');
+    this.buildMenu(this.taskType);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['taskType'] || changes['isInTrash']) {
+      this.buildMenu(this.taskType);
+    }
   }
 
   buildMenu(type: 'task' | 'note') {
+    if (this.isInTrash) {
+      // Special menu for trash items
+      this.items = [
+        {
+          label: 'Restore',
+          icon: 'pi pi-undo',
+          command: () => this.restoreTask.emit(),
+        },
+        {
+          label: 'Permanently Delete',
+          icon: 'pi pi-trash text-red-500',
+          command: () => this.permanentlyDeleteTask.emit(),
+        },
+      ];
+      return;
+    }
+
+    // Normal menu for non-trash items
     this.items = [
       {
         label: 'Date',
@@ -52,7 +80,6 @@ export class TaskMenu {
   this.setDueDate.emit(tomorrow);
 }
           },
-          { label: 'Pick a Date', icon: 'pi pi-calendar' },
         ],
 
       },

@@ -9,11 +9,12 @@ export interface Task {
   subtasks?: Task[];
   type?: 'task' | 'note';
   tags?: string[];
-  dueDate?: string;
+  dueDate?: string | null;
   list?: string | number;
   pinned?: boolean;
   description?: string;
   showSubtaskInput?: boolean;
+  deleted?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -27,7 +28,8 @@ export class CategoryService {
   { name: 'Inbox', id: 3 },
   { name: 'Today', id: 1 },
   { name: 'Next 7 Days', id: 2 },
-  { name: 'Completed', id: 4 } 
+  { name: 'Completed', id: 4 },
+  { name: 'Trash', id: 5 }
 ];
 
 
@@ -39,11 +41,19 @@ export class CategoryService {
     const savedCategories = localStorage.getItem('categories');
     if (savedCategories) {
       this.categoryList = JSON.parse(savedCategories);
+      
+      // Ensure all default categories are present (for new additions like Trash)
+      this.defaultCategories.forEach(defaultCat => {
+        if (!this.categoryList.find(cat => cat.id === defaultCat.id)) {
+          this.categoryList.push(defaultCat);
+        }
+      });
     } else {
       this.categoryList = [...this.defaultCategories];
-      localStorage.setItem('categories', JSON.stringify(this.categoryList));
     }
-
+    
+    // Save the updated category list
+    localStorage.setItem('categories', JSON.stringify(this.categoryList));
     this.categoryListSubject.next(this.categoryList);
 
     // 🔹 Load Tasks from localStorage

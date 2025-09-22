@@ -31,7 +31,7 @@ export class TaskDetail implements OnInit {
       }
     });
   }
-  getDisplayDate(selectedDate: string | undefined): string {
+  getDisplayDate(selectedDate: string | null | undefined): string {
   if (!selectedDate) return '';
 
   const dateObj = new Date(selectedDate);

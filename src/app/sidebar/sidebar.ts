@@ -40,6 +40,10 @@ export class Sidebar {
   selectedTag: string | null = null;
   showTagDialog = false;
   newTagName = '';
+  
+  // Collapsible state for sections
+  listsCollapsed: boolean = false;
+  tagsCollapsed: boolean = false;
 
   constructor(
     private TaskService: TaskService,
@@ -190,5 +194,14 @@ export class Sidebar {
 
     this.newTagName = '';
     this.showTagDialog = false;
+  }
+
+  // Toggle methods for collapsible sections
+  toggleLists() {
+    this.listsCollapsed = !this.listsCollapsed;
+  }
+
+  toggleTags() {
+    this.tagsCollapsed = !this.tagsCollapsed;
   }
 }

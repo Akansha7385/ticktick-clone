@@ -9,12 +9,13 @@ export interface Task {
   subtasks?: Task[];
   type?: 'task' | 'note';
   tags?: string[];
-  dueDate?: string;
+  dueDate?: string | null;
   list?: 'inbox' | 'today' | 'next7Days' | 'work' | 'welcome' | 'completed' |'custom'|string;
   pinned?: boolean;
   description?: string;
   showSubtaskInput?: boolean;
   categoryId?: number;
+  deleted?: boolean;
 
 }
 

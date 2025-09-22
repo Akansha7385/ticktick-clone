@@ -6,6 +6,7 @@
       (completeMethod)="filterTags($event)"
       (onSelect)="onTagSelect($event)"
       (onUnselect)="onTagUnselect($event)"
+      (keyup.enter)="onEnterKey()"
       [multiple]="false"
       [forceSelection]="false"
       placeholder="Type in a tag"

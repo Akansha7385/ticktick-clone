@@ -78,6 +78,24 @@ export class Tags {
     // Handle tag unselection if needed
   }
 
+  onEnterKey() {
+    // When Enter is pressed, add the current input value as a tag if it's not empty
+    if (this.inputValue && this.inputValue.trim() !== '') {
+      const newTag = this.inputValue.trim();
+      
+      // Add to global service first
+      this.tagsService.addTag(newTag);
+      
+      // Add to selected tags if not already present
+      if (!this.selectedTags.includes(newTag)) {
+        this.selectedTags = [...this.selectedTags, newTag];
+      }
+      
+      // Clear the input field
+      this.inputValue = '';
+    }
+  }
+
   removeTag(index: number) {
     this.selectedTags.splice(index, 1);
   }
